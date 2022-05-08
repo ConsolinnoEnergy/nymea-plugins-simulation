@@ -412,9 +412,11 @@
                             "name": "capacity",
                             "displayName": "Battery capacity",
                             "displayNameEvent": "Battery capacity changed",
+                            "displayNameAction": "Change battery capacity",
                             "type": "double",
                             "unit": "KiloWattHour",
-                            "defaultValue": 50
+                            "defaultValue": 50,
+                            "writable": true
                         },
                         {
                             "id": "322d64cd-c136-4e74-a60b-c39480513b65",
