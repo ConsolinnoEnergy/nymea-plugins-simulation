@@ -39,7 +39,7 @@ build:bullseye:
   stage: build
   script:
     - apt-get update
-    - apt-get install -y git-buildpackage python
+    - apt-get install -y git-buildpackage python qtbase5-dev
     - gbp dch -S -a --snapshot-number=`date +"%s"` --ignore-branch
     - gosu root dpkg-buildpackage -b  && mkdir -p build/bullseye && gosu root mv ../*.deb build/bullseye/
   artifacts:
