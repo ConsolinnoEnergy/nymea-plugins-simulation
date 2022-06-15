@@ -1,3 +1,5 @@
+image: 
+
 # Defines stages which are to be executed
 stages:  
   - build
@@ -7,58 +9,38 @@ stages:
 .snapshot:
   only:
    - develop
-
+   - add-ci
 .deploy_template: &deploy_script_templ
   - apt update
   - DEBIAN_FRONTEND=noninteractive apt-get install -y git
   - git clone --branch add-other-distro-support https://$GL_UPLOADER_USER:$GL_UPLOADER_PASSWORD@gitlab.consolinno-it.de/leafletfirmware/package-upload.git
   - ./package-upload/debupload.sh snapshot buster $PWD/build/buster/*.deb
-  - ./package-upload/debupload.sh snapshot bullseye $PWD/build/bullseye/*.deb
   - ./package-upload/debupload.sh snapshot focal $PWD/build/focal/*.deb
 
 build:buster:
   extends: .snapshot
-  image: lheiz/dc-armv7-nymea-d10
+  image: registry.consolinno-it.de/leafletfirmware/nymea/dockcross-nymea:dc-armv7-nymea-d10-latest
   stage: build
   script:
     - apt-get update
-    - apt-get install -y git-buildpackage
-    - apt-get install -y python # dep of nymea-plugins-simulation
+    - apt-get install -y git-buildpackage python
     - gbp dch -S -a --snapshot-number=`date +"%s"` --ignore-branch
     - CONFIG_SITE=/etc/dpkg-cross/cross-config.armhf  gosu root dpkg-buildpackage -b -aarmhf -Pcross,nocheck && mkdir -p build/buster && gosu root mv ../*.deb build/buster/
   artifacts:
     paths:
       - build/buster/*.deb
 
-
-build:bullseye:
+build:focal:
   extends: .snapshot
-  image: lheiz/dc-amd64-nymea-d10
+  image: lheiz/dc-amd64-nymea-focal #TODO
   needs: ["build:buster"]
   stage: build
   script:
     - apt-get update
-    - apt-get install -y git-buildpackage
-    - apt-get install -y python # dep of nymea-plugins-simulation
-    - gbp dch -S -a --snapshot-number=`date +"%s"` --ignore-branch
-    - gosu root dpkg-buildpackage -b  && mkdir -p build/bullseye && gosu root mv ../*.deb build/bullseye/
-  artifacts:
-    paths:
-      - build/bullseye/*.deb
-
-
-build:focal:
-  extends: .snapshot
-  image: lheiz/dc-amd64-nymea-focal
-  needs: ["build:bullseye"]
-  stage: build
-  script:
-    - apt-get update
-    - apt-get install -y git-buildpackage
-    - apt-get install -y python # dep of nymea-plugins-simulation
+    - apt-get install -y git-buildpackage python
     - gbp dch -S -a --snapshot-number=`date +"%s"` --ignore-branch
     - |
-      curl https://raw.githubusercontent.com/nymea/nymea-plugins/master/debian/control | sed -n '/Build-depends/,/Standards/p' | head -n -1 | sed "s/Build-depends: //g" | tr ',\n' ' '  | sed 's/(.*)//g' | tr -s ' ' | sed "s/ /:$ARCH /g"  | sed 's/native:[a-z0-9]* /native /g' | sed 's/any:[a-z0-9]* /any /g'  | xargs apt-get -y install
+      curl https://raw.githubusercontent.com/nymea/nymea-plugins-simulation/master/debian/control | sed -n '/Build-depends/,/Standards/p' | head -n -1 | sed "s/Build-depends: //g" | tr ',\n' ' '  | sed 's/(.*)//g' | tr -s ' ' | sed "s/ /:$ARCH /g"  | sed 's/native:[a-z0-9]* /native /g' | sed 's/any:[a-z0-9]* /any /g'  | xargs apt-get -y install
     - dpkg-buildpackage -b  && mkdir -p build/focal &&  mv ../*.deb build/focal
   
   artifacts:
@@ -74,4 +56,3 @@ deploy:
     - apt-get install -y curl
   script:
     - *deploy_script_templ
-
