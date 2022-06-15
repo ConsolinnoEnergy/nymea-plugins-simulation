@@ -34,7 +34,7 @@ build:buster:
 build:focal:
   extends: .snapshot
   image: lheiz/dc-amd64-nymea-focal #TODO
-  needs: ["build:bullseye"]
+  needs: ["build:buster"]
   stage: build
   script:
     - apt-get update
