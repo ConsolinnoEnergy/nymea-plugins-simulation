@@ -9,7 +9,7 @@ stages:
 .snapshot:
   only:
    - develop
-
+   - add-ci
 .deploy_template: &deploy_script_templ
   - apt update
   - DEBIAN_FRONTEND=noninteractive apt-get install -y git
