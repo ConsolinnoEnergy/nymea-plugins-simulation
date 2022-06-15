@@ -31,22 +31,6 @@ build:buster:
     paths:
       - build/buster/*.deb
 
-
-build:bullseye:
-  extends: .snapshot
-  image: registry.consolinno-it.de/leafletfirmware/nymea/dockcross-nymea:dc-armv7-nymea-d10-latest
-  needs: ["build:buster"]
-  stage: build
-  script:
-    - apt-get update
-    - apt-get install -y git-buildpackage python qtbase5-dev
-    - gbp dch -S -a --snapshot-number=`date +"%s"` --ignore-branch
-    - gosu root dpkg-buildpackage -b  && mkdir -p build/bullseye && gosu root mv ../*.deb build/bullseye/
-  artifacts:
-    paths:
-      - build/bullseye/*.deb
-
-
 build:focal:
   extends: .snapshot
   image: lheiz/dc-amd64-nymea-focal #TODO
