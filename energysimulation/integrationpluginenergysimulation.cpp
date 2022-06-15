@@ -132,6 +132,8 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
             }
         } else if (info->action().actionTypeId() == carMinChargingCurrentActionTypeId) {
             info->thing()->setStateValue(carMinChargingCurrentStateTypeId, info->action().paramValue(carMinChargingCurrentActionMinChargingCurrentParamTypeId));
+        } else if (info->action().actionTypeId() == carCapacityActionTypeId) {
+            info->thing()->setStateValue(carCapacityStateTypeId, info->action().paramValue(carCapacityActionCapacityParamTypeId));
         }
     }
     if (info->thing()->thingClassId() == sgReadyHeatPumpThingClassId) {
