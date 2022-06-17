@@ -463,6 +463,15 @@
                     ],
                     "stateTypes": [ 
                         {
+                            "id": "c640d783-d130-4e3a-afd7-ec15f2c948fa",
+                            "name": "capacity",
+                            "displayName": "Battery capacity",
+                            "displayNameEvent": "Battery capacity changed",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 50
+                        },
+                        {
                             "id": "322d64cd-c136-4e74-a60b-c39480513b65",
                             "name": "batteryCritical",
                             "displayName": "Battery level critical",
