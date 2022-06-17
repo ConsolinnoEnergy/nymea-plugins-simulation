@@ -451,18 +451,17 @@
                     "displayName": "Simulated car",
                     "createMethods": ["user"],
                     "interfaces": ["electricvehicle"],
-                    "stateTypes": [
+                    "settingsTypes": [
                         {
                             "id": "59f7be2e-f63d-4f23-a2b5-f045c1b39aab",
                             "name": "capacity",
                             "displayName": "Battery capacity",
-                            "displayNameEvent": "Battery capacity changed",
-                            "displayNameAction": "Change battery capacity",
                             "type": "double",
                             "unit": "KiloWattHour",
-                            "defaultValue": 50,
-                            "writable": true
-                        },
+                            "defaultValue": 50
+                        }
+                    ],
+                    "stateTypes": [ 
                         {
                             "id": "322d64cd-c136-4e74-a60b-c39480513b65",
                             "name": "batteryCritical",

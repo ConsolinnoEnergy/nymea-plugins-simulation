@@ -135,9 +135,7 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
             }
         } else if (info->action().actionTypeId() == carMinChargingCurrentActionTypeId) {
             info->thing()->setStateValue(carMinChargingCurrentStateTypeId, info->action().paramValue(carMinChargingCurrentActionMinChargingCurrentParamTypeId));
-        } else if (info->action().actionTypeId() == carCapacityActionTypeId) {
-            info->thing()->setStateValue(carCapacityStateTypeId, info->action().paramValue(carCapacityActionCapacityParamTypeId));
-        }
+        }     
     }
     if (info->thing()->thingClassId() == sgReadyHeatPumpThingClassId) {
         if (info->action().actionTypeId() == sgReadyHeatPumpSgReadyModeActionTypeId) {
@@ -203,7 +201,8 @@ void IntegrationPluginEnergySimulation::updateSimulation()
                 double chargingPower = 230 * maxChargingCurrent;
                 double chargingTimeHours = 1.0 * lastChargeUpdateTime.msecsTo(QDateTime::currentDateTime()) / 1000 / 60 / 60;
                 double chargedWattHours = chargingPower * chargingTimeHours;
-                double carCapacity = car->stateValue(carCapacityStateTypeId).toDouble();
+                double carCapacity = car->stateValue(carSettingsCapacityParamTypeId).toDouble();
+
                 // cWH : cap = x : 100
                 double chargedPercentage = chargedWattHours / 1000 * 100 / carCapacity;
                 qCDebug(dcEnergySimulation()) << "* #### Car charging info:";
