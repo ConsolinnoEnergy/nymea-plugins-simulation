@@ -201,7 +201,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
                 double chargingPower = 230 * maxChargingCurrent;
                 double chargingTimeHours = 1.0 * lastChargeUpdateTime.msecsTo(QDateTime::currentDateTime()) / 1000 / 60 / 60;
                 double chargedWattHours = chargingPower * chargingTimeHours;
-                double carCapacity = car->stateValue(carSettingsCapacityParamTypeId).toDouble();
+                double carCapacity = car->setting(carSettingsCapacityParamTypeId).toDouble();
 
                 // cWH : cap = x : 100
                 double chargedPercentage = chargedWattHours / 1000 * 100 / carCapacity;
