@@ -32,7 +32,7 @@ build:buster:
 
 build:focal:
   extends: .snapshot
-  image: lheiz/dc-amd64-nymea-focal #TODO
+  image: registry.consolinno-it.de/leafletfirmware/nymea/dockcross-nymea:dc-amd64-nymea-focal-latest #TODO
   needs: ["build:buster"]
   stage: build
   script:
