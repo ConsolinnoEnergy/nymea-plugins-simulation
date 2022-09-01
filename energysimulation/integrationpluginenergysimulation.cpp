@@ -43,7 +43,7 @@ IntegrationPluginEnergySimulation::IntegrationPluginEnergySimulation(QObject *pa
 {
                           // 0 1 2 3 4 5 6 7 8 91011121314151617181920212223
     m_interval = QByteArray("0\0\0\0\0\1\1\1\1\1\0\0\0\0\0\1\0\1\1\1\1\1\1\0", 24);
-    qCWarning(dcEnergySimulation()) << "interval" << m_interval;
+    //qCWarning(dcEnergySimulation()) << "interval" << m_interval;
 
 
 }
