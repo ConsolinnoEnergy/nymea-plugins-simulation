@@ -34,12 +34,17 @@
 #include "plugininfo.h"
 
 #include <QtMath>
+#include <QTime>
 
 #define CIVIL_ZENITH  90.83333
 
 
 IntegrationPluginEnergySimulation::IntegrationPluginEnergySimulation(QObject *parent): IntegrationPlugin (parent)
 {
+                          // 0 1 2 3 4 5 6 7 8 91011121314151617181920212223
+    m_interval = QByteArray("0\0\0\0\0\1\1\1\1\1\0\0\0\0\0\1\0\1\1\1\1\1\1\0", 24);
+    qCWarning(dcEnergySimulation()) << "interval" << m_interval;
+
 
 }
 
@@ -65,6 +70,7 @@ void IntegrationPluginEnergySimulation::setupThing(ThingSetupInfo *info)
         connect(m_timer, &PluginTimer::timeout, this, &IntegrationPluginEnergySimulation::updateSimulation);
     }
 
+    // connect that changes the maximum charging current upperr limit in the details menu
     if (thing->thingClassId() == wallboxThingClassId) {
         connect(info->thing(), &Thing::settingChanged, this, [thing](const ParamTypeId &settingTypeId, const QVariant &value){
             if (settingTypeId == wallboxSettingsMaxChargingCurrentUpperLimitParamTypeId) {
@@ -136,7 +142,7 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         } else if (info->action().actionTypeId() == carMinChargingCurrentActionTypeId) {
             info->thing()->setStateValue(carMinChargingCurrentStateTypeId, info->action().paramValue(carMinChargingCurrentActionMinChargingCurrentParamTypeId));
         }     
-    }
+    }// connection that update the states of the heatpump as soon as they change
     if (info->thing()->thingClassId() == sgReadyHeatPumpThingClassId) {
         if (info->action().actionTypeId() == sgReadyHeatPumpSgReadyModeActionTypeId) {
             QString operatingMode = info->action().paramValue(sgReadyHeatPumpSgReadyModeActionSgReadyModeParamTypeId).toString();
@@ -308,35 +314,72 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         fridge->setProperty("simulationCycle", cycle + 1);
     }
 
-    // Update heat pumps
+    // Update SgReady heat pumps
     foreach (Thing *heatPump, myThings().filterByThingClassId(sgReadyHeatPumpThingClassId)) {
         QString operatingMode = heatPump->stateValue(sgReadyHeatPumpSgReadyModeStateTypeId).toString();
         QString phase = heatPump->setting(sgReadyHeatPumpSettingsPhaseParamTypeId).toString();
+
         uint minConsumption = heatPump->setting(sgReadyHeatPumpSettingsMinConsumptionParamTypeId).toUInt();
         uint maxConsumption = heatPump->setting(sgReadyHeatPumpSettingsMaxConsumptionParamTypeId).toUInt();
+
         double currentPower = 0;
+        // array 24h setzen mit aktuelle Zeit berücksichtigen
+
+        // get aktuelle stunde.
+
+        // make check for weird values
+
         if (operatingMode == "Off") {
             currentPower = 10  + (qrand() % 5); // We need some energy since only the pump is off, not the controller
         } else if (operatingMode == "Low") {
-            currentPower = minConsumption + (qrand() % 20);
+
+            // follow the inteval defined in m_interval
+            // if 1 do the currentPower of Low, if 0 do the current Power Off
+            QTime temp;
+            int hour = temp.currentTime().hour();
+            if ((hour < 24) & (hour >= 0)){
+                int activate = m_interval[hour];
+                if (activate == 1){
+                   currentPower = minConsumption + (qrand() % 20);
+                } else if (activate == 0){
+                   currentPower = 10  + (qrand() % 5);
+                }
+
+            } else{
+                qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
+
+            }
+
+
+
+
+
+
+
         } else if (operatingMode == "Standard") {
             // min + 60 % of the max min difference + 20W jitter
             currentPower = minConsumption + (maxConsumption - minConsumption) * 0.6 + (qrand() % 20);
         } else if (operatingMode == "High") {
             currentPower = maxConsumption + (qrand() % 20); // 20W jitter
         }
-
+        // reading which cycle we are in. Every cyle is 5 sec )
         int cycle = heatPump->property("simulationCycle").toInt() % 12;
+
         double totalEnergyConsumed = heatPump->stateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId).toDouble();
+
+
         if (cycle < 4)
             totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;
 
+        // setting the new cycle value
         heatPump->setProperty("simulationCycle", cycle + 1);
 
         qCDebug(dcEnergySimulation()) << "* Heatpump" << heatPump->name() << "consumes" << currentPower << "W" << operatingMode << "Energy consumed" << totalEnergyConsumed << "kWh";
         heatPump->setStateValue(sgReadyHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+    // Update Simple Heatpumps
     foreach (Thing *heatPump, myThings().filterByThingClassId(simpleHeatPumpThingClassId)) {
         bool heatpumpEnabled = heatPump->stateValue(simpleHeatPumpPowerStateTypeId).toBool();
         QString phase = heatPump->setting(simpleHeatPumpSettingsPhaseParamTypeId).toString();
