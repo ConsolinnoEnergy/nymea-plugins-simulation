@@ -61,7 +61,7 @@ private:
 private:
     PluginTimer *m_timer = nullptr;
     PluginTimer *m_totalsTimer = nullptr;
-
+    QByteArray m_interval;
 };
 
 #endif // INTEGRATIONPLUGINENERGYSIMULATION_H

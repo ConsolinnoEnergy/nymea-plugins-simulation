@@ -34,13 +34,15 @@
 #include "plugininfo.h"
 
 #include <QtMath>
+#include <QTime>
 
 #define CIVIL_ZENITH  90.83333
 
 
 IntegrationPluginEnergySimulation::IntegrationPluginEnergySimulation(QObject *parent): IntegrationPlugin (parent)
 {
-
+    // This defines the heating intervals in SG Ready state 2 (in nymea called Low, Relais 0:0)
+    m_interval = QByteArray("0\0\0\0\0\1\1\1\1\1\0\0\0\0\0\1\0\1\1\1\1\1\1\0", 24);
 }
 
 void IntegrationPluginEnergySimulation::discoverThings(ThingDiscoveryInfo *info)
@@ -137,6 +139,7 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
             info->thing()->setStateValue(carMinChargingCurrentStateTypeId, info->action().paramValue(carMinChargingCurrentActionMinChargingCurrentParamTypeId));
         }     
     }
+
     if (info->thing()->thingClassId() == sgReadyHeatPumpThingClassId) {
         if (info->action().actionTypeId() == sgReadyHeatPumpSgReadyModeActionTypeId) {
             QString operatingMode = info->action().paramValue(sgReadyHeatPumpSgReadyModeActionSgReadyModeParamTypeId).toString();
@@ -308,26 +311,43 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         fridge->setProperty("simulationCycle", cycle + 1);
     }
 
-    // Update heat pumps
+    // Update SG Ready heat pumps
     foreach (Thing *heatPump, myThings().filterByThingClassId(sgReadyHeatPumpThingClassId)) {
         QString operatingMode = heatPump->stateValue(sgReadyHeatPumpSgReadyModeStateTypeId).toString();
         QString phase = heatPump->setting(sgReadyHeatPumpSettingsPhaseParamTypeId).toString();
         uint minConsumption = heatPump->setting(sgReadyHeatPumpSettingsMinConsumptionParamTypeId).toUInt();
         uint maxConsumption = heatPump->setting(sgReadyHeatPumpSettingsMaxConsumptionParamTypeId).toUInt();
         double currentPower = 0;
+
         if (operatingMode == "Off") {
             currentPower = 10  + (qrand() % 5); // We need some energy since only the pump is off, not the controller
         } else if (operatingMode == "Low") {
-            currentPower = minConsumption + (qrand() % 20);
+            // follow the inteval defined in m_interval
+            QTime temp;
+            int hour = temp.currentTime().hour();
+            if ((hour < 24) & (hour >= 0)){
+                int activate = m_interval[hour];
+                if (activate == 1){
+                   currentPower = minConsumption + (qrand() % 20);
+                } else if (activate == 0){
+                   currentPower = 10  + (qrand() % 5);
+                }
+
+            } else{
+                qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
+
+            }
         } else if (operatingMode == "Standard") {
-            // min + 60 % of the max min difference + 20W jitter
             currentPower = minConsumption + (maxConsumption - minConsumption) * 0.6 + (qrand() % 20);
         } else if (operatingMode == "High") {
-            currentPower = maxConsumption + (qrand() % 20); // 20W jitter
+            currentPower = maxConsumption + (qrand() % 20);
         }
-
+        // reading which cycle we are in. Every cyle is 5 sec )
         int cycle = heatPump->property("simulationCycle").toInt() % 12;
+
         double totalEnergyConsumed = heatPump->stateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId).toDouble();
+
+
         if (cycle < 4)
             totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;
 
