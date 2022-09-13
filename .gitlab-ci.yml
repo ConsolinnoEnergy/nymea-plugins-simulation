@@ -1,4 +1,4 @@
 include:
-  - project: 'consolinno/iot-cloud-edge-embedded/edge/hems-ci'
+  - project: 'leafletfirmware/nymea/nymea-ci'
     file: '/nymea/development.yml'
     ref: main
