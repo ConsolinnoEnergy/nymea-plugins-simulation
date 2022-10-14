@@ -1,4 +1,4 @@
-nymea-plugins-simulation (1.4.0-1) jammy; urgency=medium
+nymea-plugins-simulation (1.4.0-1) qa; urgency=medium
 
   [ Michael Zanetti ]
   * Energy: Fix phase count for simulated wallbox
