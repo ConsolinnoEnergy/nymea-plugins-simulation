@@ -1,3 +1,26 @@
+nymea-plugins-simulation (1.5.101-1) jammy; urgency=medium
+
+  * Bumps version number to reflect fork: 1.5.1>01-1<-- Fork version based on upstream 1.5.1
+  * Improved Heatpump simulation
+
+ -- Leonhard Heizinger <l.heizinger@consolinno.de>  Wed, 14 Dec 2022 10:43:41 +0100
+
+
+nymea-plugins-simulation (1.5.1) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Mon, 07 Nov 2022 12:48:24 +0100
+
+nymea-plugins-simulation (1.5.0) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Mon, 17 Oct 2022 11:21:52 +0200
+
+nymea-plugins-simulation (1.4.1) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Fri, 23 Sep 2022 16:34:16 +0200
+
 nymea-plugins-simulation (1.4.0) jammy; urgency=medium
 
   [ Michael Zanetti ]
