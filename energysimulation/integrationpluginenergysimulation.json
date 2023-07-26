@@ -419,11 +419,22 @@
                     "displayName": "Simulated car (with API)",
                     "createMethods": ["user"],
                     "interfaces": ["electricvehicle"],
-                    "stateTypes": [
+                    "settingsTypes": [
                         {
                             "id": "59f7be2e-f63d-4f23-a2b5-f045c1b39aab",
                             "name": "capacity",
                             "displayName": "Battery capacity",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 50
+                        }
+                    ],
+                    "stateTypes": [ 
+                        {
+                            "id": "c640d783-d130-4e3a-afd7-ec15f2c948fa",
+                            "name": "capacity",
+                            "displayName": "Battery capacity",
+                            "displayNameEvent": "Battery capacity changed",
                             "type": "double",
                             "unit": "KiloWattHour",
                             "defaultValue": 50

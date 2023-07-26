@@ -1,0 +1,4 @@
+include:
+  - project: 'leafletfirmware/nymea/nymea-ci'
+    file: '/nymea/pipeline.yml'
+    ref: main
