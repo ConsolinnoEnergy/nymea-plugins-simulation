@@ -1,4 +1,4 @@
-nymea-plugins-simulation (1.7.0) jammy; urgency=medium
+nymea-plugins-simulation (1.7.0-1) jammy; urgency=medium
 
   [ Michael Zanetti ]
   * Update thing class names to include "Simulated" in their names
