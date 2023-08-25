@@ -444,27 +444,35 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
 
 
-    // And add simulation devices consumption
+    // Adds consumption from real smart meter consumers 
     qCDebug(dcEnergySimulation()) << "***** TESTING ver 1 *****";
 
-    // Unfortunately, this does not compile. m_thingManager is private. Need to find another way to get configuredThings.
-    foreach (Thing *consumer, m_thingManager->configuredThings()) {
+    foreach (Thing *consumer, myThings()) {
         qCDebug(dcEnergySimulation()) << "* Checking thing" << consumer->name() << "for consumption.";
-        if (consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
-            QString phase = consumer->setting("phase").toString();
-            if (phase.isEmpty()) {
-                phase = "All";
-            }
-            double currentPower = consumer->stateValue("currentPower").toDouble();
-            if (phase == "All") {
-                qCDebug(dcEnergySimulation()) << "Adding" << currentPower / 3 << "per phase for" << consumer->name();
-                totalPhasesConsumption["A"] += currentPower / 3;
-                totalPhasesConsumption["B"] += currentPower / 3;
-                totalPhasesConsumption["C"] += currentPower / 3;
-            } else {
-                qCDebug(dcEnergySimulation()) << "Adding" << currentPower << "to phase" << phase << "for" << consumer->name();
-                totalPhasesConsumption[phase] += currentPower;
-            }
+        if (!consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
+            continue;
+        }
+        // This omits all things created by "nymea" vendor. 
+        // This is a workaround for the fact that the energy simulation already evaluates these things elsewhere (e.g. simulated ev charger)
+        // I couldn't find a better way to filter out these things yet.
+        if (!(consumer->thingClass().vendorId().toString() == "2062d64d-3232-433c-88bc-0d33c0ba2ba6") ) {
+            qCDebug(dcEnergySimulation()) << "* Omitting thing " << consumer->name() << " from evaluation because it is already processed by energy simulation elsewhere";
+            continue;
+        }
+
+        QString phase = consumer->setting("phase").toString();
+        if (phase.isEmpty()) {
+            phase = "All";
+        }
+        double currentPower = consumer->stateValue("currentPower").toDouble();
+        if (phase == "All") {
+            qCDebug(dcEnergySimulation()) << "Adding" << currentPower / 3 << "per phase for" << consumer->name();
+            totalPhasesConsumption["A"] += currentPower / 3;
+            totalPhasesConsumption["B"] += currentPower / 3;
+            totalPhasesConsumption["C"] += currentPower / 3;
+        } else {
+            qCDebug(dcEnergySimulation()) << "Adding" << currentPower << "to phase" << phase << "for" << consumer->name();
+            totalPhasesConsumption[phase] += currentPower;
         }
     }
 
