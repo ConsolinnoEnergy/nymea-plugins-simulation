@@ -129,6 +129,13 @@
                             "defaultValue": 5000
                         },
                         {
+                            "id": "43656880-74fe-49db-8ed1-f15d9e797ca8",
+                            "name": "maxPower",
+                            "displayName": "Max power",
+                            "type": "bool",
+                            "defaultValue": false
+                        },
+                        {
                             "id": "39f902a6-8b16-4da2-86eb-e984735b426d",
                             "name": "phase",
                             "displayName": "Connected on phase",

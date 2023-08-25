@@ -174,30 +174,38 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
     // Update solar inverters
     foreach (Thing* inverter, myThings().filterByThingClassId(solarInverterThingClassId)) {
-        QDateTime now = QDateTime::currentDateTime();
-        int hoursOffset = inverter->setting(solarInverterSettingsHoursOffsetParamTypeId).toInt();
-        now = now.addSecs(hoursOffset * 60 * 60);
-
-        QPair<QDateTime, QDateTime> sunriseSunset = calculateSunriseSunset(48, 10, now);
-        QDateTime sunrise = sunriseSunset.first;
-        QDateTime sunset = sunriseSunset.second;
-
-        if (sunrise < now && now < sunset) {
-            qlonglong msecsOfLight = sunriseSunset.second.toMSecsSinceEpoch() - sunriseSunset.first.toMSecsSinceEpoch();
-            qlonglong currentMSecOfLight = now.toMSecsSinceEpoch() - sunrise.toMSecsSinceEpoch();
-            qreal degrees = (currentMSecOfLight * 180 / msecsOfLight) - 90;
-
-            double currentProduction = qCos(qDegreesToRadians(degrees)) * inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
-            qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << currentProduction << "W";
-            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -currentProduction);
-            double totalEnergyProduced = inverter->stateValue(solarInverterTotalEnergyProducedStateTypeId).toDouble();
-            totalEnergyProduced += (currentProduction / 1000) / 60 / 60 * 5;
-            inverter->setStateValue(solarInverterTotalEnergyProducedStateTypeId, totalEnergyProduced);
-
+        bool maxPower = inverter->setting(solarInverterSettingsMaxPowerParamTypeId).toBool();
+        if (maxPower) {
+            double maxProduction = inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
+            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -maxProduction);
         } else {
-            qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << "0" << "W";
-            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, 0);
+            QDateTime now = QDateTime::currentDateTime();
+            int hoursOffset = inverter->setting(solarInverterSettingsHoursOffsetParamTypeId).toInt();
+            now = now.addSecs(hoursOffset * 60 * 60);
+
+            QPair<QDateTime, QDateTime> sunriseSunset = calculateSunriseSunset(48, 10, now);
+            QDateTime sunrise = sunriseSunset.first;
+            QDateTime sunset = sunriseSunset.second;
+
+            if (sunrise < now && now < sunset) {
+                qlonglong msecsOfLight = sunriseSunset.second.toMSecsSinceEpoch() - sunriseSunset.first.toMSecsSinceEpoch();
+                qlonglong currentMSecOfLight = now.toMSecsSinceEpoch() - sunrise.toMSecsSinceEpoch();
+                qreal degrees = (currentMSecOfLight * 180 / msecsOfLight) - 90;
+
+                double currentProduction = qCos(qDegreesToRadians(degrees)) * inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
+                qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << currentProduction << "W";
+                inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -currentProduction);
+                double totalEnergyProduced = inverter->stateValue(solarInverterTotalEnergyProducedStateTypeId).toDouble();
+                totalEnergyProduced += (currentProduction / 1000) / 60 / 60 * 5;
+                inverter->setStateValue(solarInverterTotalEnergyProducedStateTypeId, totalEnergyProduced);
+
+            } else {
+                qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << "0" << "W";
+                inverter->setStateValue(solarInverterCurrentPowerStateTypeId, 0);
+            }
         }
+
+
     }
 
     // Update evchargers
@@ -437,9 +445,16 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
 
     // And add simulation devices consumption
-    foreach (Thing *consumer, myThings()) {
+    qCDebug(dcEnergySimulation()) << "***** TESTING ver 1 *****";
+
+    // Unfortunately, this does not compile. m_thingManager is private. Need to find another way to get configuredThings.
+    foreach (Thing *consumer, m_thingManager->configuredThings()) {
+        qCDebug(dcEnergySimulation()) << "* Checking thing" << consumer->name() << "for consumption.";
         if (consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
             QString phase = consumer->setting("phase").toString();
+            if (phase.isEmpty()) {
+                phase = "All";
+            }
             double currentPower = consumer->stateValue("currentPower").toDouble();
             if (phase == "All") {
                 qCDebug(dcEnergySimulation()) << "Adding" << currentPower / 3 << "per phase for" << consumer->name();
