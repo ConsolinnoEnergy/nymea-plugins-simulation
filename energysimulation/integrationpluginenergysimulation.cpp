@@ -455,7 +455,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         // This omits all things created by "nymea" vendor. 
         // This is a workaround for the fact that the energy simulation already evaluates these things elsewhere (e.g. simulated ev charger)
         // I couldn't find a better way to filter out these things yet.
-        if (!(consumer->thingClass().vendorId().toString() == "2062d64d-3232-433c-88bc-0d33c0ba2ba6") ) {
+        if (!(consumer->thingClass().vendorId() == nymeaVendorId) ) {
             qCDebug(dcEnergySimulation()) << "* Omitting thing " << consumer->name() << " from evaluation because it is already processed by energy simulation elsewhere";
             continue;
         }
