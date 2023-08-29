@@ -346,6 +346,70 @@
                     ]
                 },
                 {
+                    "id": "3e13b1aa-4ecd-4b48-80be-0dfcc0e5cbe4",
+                    "name": "apiConsumer",
+                    "displayName": "Generic simulated consumer (API)",
+                    "createMethods": ["user"],
+                    "interfaces": ["smartmeterconsumer"],
+                    "settingsTypes": [
+                        {
+                            "id": "561b3574-3a09-4d09-a20c-dc906b99114c",
+                            "name": "phase",
+                            "displayName": "Connected on phase",
+                            "type": "QString",
+                            "allowedValues": ["A", "B", "C"],
+                            "defaultValue": "A"
+                        },
+                        {
+                            "id": "82e680bc-5244-4c4e-a372-75f0229a1b39",
+                            "name": "maxPower",
+                            "displayName": "Desired maximum power",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "6e56905a-4320-4c70-bfdf-71086436053e",
+                            "name": "updateTotalEnergy",
+                            "displayName": "Update total energy",
+                            "type": "bool",
+                            "defaultValue": true
+                        }
+
+
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "83ea0a10-38af-423b-9e31-687a77098680",
+                            "name": "power",
+                            "displayName": "On",
+                            "displayNameEvent": "Turned on or off",
+                            "displayNameAction": "Turn on or off",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "750d32be-dd4e-48c9-b025-3ae62f334a75",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total consumed energy",
+                            "displayNameEvent": "Total consumed engery changed",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0
+                        },
+                        {
+                            "id": "1d3027f1-66f2-4ad5-bc1d-5ab9ddc5c824",
+                            "name": "currentPower",
+                            "displayName": "Current power consumption",
+                            "displayNameEvent": "Current power consumption changed",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0
+                        }
+                    ]
+                },
+                {
                     "id": "51a34654-0e29-45ef-b361-305633838bf2",
                     "name": "stove",
                     "displayName": "Simulated stove",

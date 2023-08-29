@@ -30,6 +30,7 @@
 
 #include "integrationpluginenergysimulation.h"
 
+#include "extern-plugininfo.h"
 #include "plugintimer.h"
 #include "plugininfo.h"
 
@@ -164,6 +165,13 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         }
     }
 
+    if (info->thing()->thingClassId() == apiConsumerThingClassId) {
+        if (info->action().actionTypeId() == apiConsumerPowerActionTypeId) {
+            uint power = info->action().paramValue(apiConsumerPowerActionPowerParamTypeId).toBool();
+            info->thing()->setStateValue(apiConsumerPowerStateTypeId, power);
+        }
+    }
+
 
     info->finish(Thing::ThingErrorNoError);
 }
@@ -269,6 +277,29 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             car->setStateValue("batteryCritical", car->stateValue("batteryLevel").toInt() < 10);
         }
     }
+
+    // Update generic consumer
+    foreach (Thing *apiConsumer, myThings().filterByThingClassId(apiConsumerThingClassId)) {
+        if (apiConsumer->stateValue(apiConsumerPowerStateTypeId).toBool()) {
+            double maxPower = apiConsumer->setting(apiConsumerSettingsMaxPowerParamTypeId).toDouble();
+            double currentPower = 0;
+            double totalEnergyConsumed = apiConsumer->stateValue(apiConsumerTotalEnergyConsumedStateTypeId).toDouble();
+            currentPower = maxPower;
+            if (apiConsumer->setting(apiConsumerSettingsUpdateTotalEnergyParamTypeId).toBool()) 
+            {
+                double newEnergy = (maxPower / 1000) / 60 / 60 * 5;
+                totalEnergyConsumed += newEnergy;
+                qCDebug(dcEnergySimulation()) << "* Adding " << newEnergy << "kWh to total energy consumed";
+                apiConsumer->setStateValue(apiConsumerTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+            }
+            apiConsumer->setStateValue(apiConsumerCurrentPowerStateTypeId, currentPower);
+
+            qCDebug(dcEnergySimulation()) << "* Generic consumer using" << currentPower << "W";
+        }else{
+            apiConsumer->setStateValue(apiConsumerCurrentPowerStateTypeId, 0);
+        }
+    }
+
 
     // Update stove
     foreach (Thing *stove, myThings().filterByThingClassId(stoveThingClassId)) {
@@ -443,39 +474,22 @@ void IntegrationPluginEnergySimulation::updateSimulation()
     totalPhasesConsumption["C"] += 100 + (qrand() % 10);
 
 
-
-    // Adds consumption from real smart meter consumers 
-    qCDebug(dcEnergySimulation()) << "***** TESTING ver 1 *****";
-
+    // And add simulation devices consumption
     foreach (Thing *consumer, myThings()) {
-        qCDebug(dcEnergySimulation()) << "* Checking thing" << consumer->name() << "for consumption.";
-        if (!consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
-            continue;
-        }
-        // This omits all things created by "nymea" vendor. 
-        // This is a workaround for the fact that the energy simulation already evaluates these things elsewhere (e.g. simulated ev charger)
-        // I couldn't find a better way to filter out these things yet.
-        if (!(consumer->thingClass().vendorId() == nymeaVendorId) ) {
-            qCDebug(dcEnergySimulation()) << "* Omitting thing " << consumer->name() << " from evaluation because it is already processed by energy simulation elsewhere";
-            continue;
-        }
-
-        QString phase = consumer->setting("phase").toString();
-        if (phase.isEmpty()) {
-            phase = "All";
-        }
-        double currentPower = consumer->stateValue("currentPower").toDouble();
-        if (phase == "All") {
-            qCDebug(dcEnergySimulation()) << "Adding" << currentPower / 3 << "per phase for" << consumer->name();
-            totalPhasesConsumption["A"] += currentPower / 3;
-            totalPhasesConsumption["B"] += currentPower / 3;
-            totalPhasesConsumption["C"] += currentPower / 3;
-        } else {
-            qCDebug(dcEnergySimulation()) << "Adding" << currentPower << "to phase" << phase << "for" << consumer->name();
-            totalPhasesConsumption[phase] += currentPower;
+        if (consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
+            QString phase = consumer->setting("phase").toString();
+            double currentPower = consumer->stateValue("currentPower").toDouble();
+            if (phase == "All") {
+                qCDebug(dcEnergySimulation()) << "Adding" << currentPower / 3 << "per phase for" << consumer->name();
+                totalPhasesConsumption["A"] += currentPower / 3;
+                totalPhasesConsumption["B"] += currentPower / 3;
+                totalPhasesConsumption["C"] += currentPower / 3;
+            } else {
+                qCDebug(dcEnergySimulation()) << "Adding" << currentPower << "to phase" << phase << "for" << consumer->name();
+                totalPhasesConsumption[phase] += currentPower;
+            }
         }
     }
-
 
     // Sum up all phases for the total consumption/production (momentary, in Watt)
     double totalProduction = 0;
