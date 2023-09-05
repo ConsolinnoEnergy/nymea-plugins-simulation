@@ -1,3 +1,9 @@
+nymea-plugins-simulation (1.7.001) jammy; urgency=medium
+
+  * Added generic consumer with API
+
+ -- Leonhard Heizinger <l.heizinger@consolinno.de>  Tue, 05 Sep 2023 10:44:52 +0100
+
 nymea-plugins-simulation (1.7.0-1) jammy; urgency=medium
 
   [ Michael Zanetti ]
