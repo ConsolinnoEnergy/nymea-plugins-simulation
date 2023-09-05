@@ -30,6 +30,7 @@
 
 #include "integrationpluginenergysimulation.h"
 
+#include "extern-plugininfo.h"
 #include "plugintimer.h"
 #include "plugininfo.h"
 
@@ -164,6 +165,13 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         }
     }
 
+    if (info->thing()->thingClassId() == apiConsumerThingClassId) {
+        if (info->action().actionTypeId() == apiConsumerPowerActionTypeId) {
+            uint power = info->action().paramValue(apiConsumerPowerActionPowerParamTypeId).toBool();
+            info->thing()->setStateValue(apiConsumerPowerStateTypeId, power);
+        }
+    }
+
 
     info->finish(Thing::ThingErrorNoError);
 }
@@ -174,30 +182,38 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
     // Update solar inverters
     foreach (Thing* inverter, myThings().filterByThingClassId(solarInverterThingClassId)) {
-        QDateTime now = QDateTime::currentDateTime();
-        int hoursOffset = inverter->setting(solarInverterSettingsHoursOffsetParamTypeId).toInt();
-        now = now.addSecs(hoursOffset * 60 * 60);
-
-        QPair<QDateTime, QDateTime> sunriseSunset = calculateSunriseSunset(48, 10, now);
-        QDateTime sunrise = sunriseSunset.first;
-        QDateTime sunset = sunriseSunset.second;
-
-        if (sunrise < now && now < sunset) {
-            qlonglong msecsOfLight = sunriseSunset.second.toMSecsSinceEpoch() - sunriseSunset.first.toMSecsSinceEpoch();
-            qlonglong currentMSecOfLight = now.toMSecsSinceEpoch() - sunrise.toMSecsSinceEpoch();
-            qreal degrees = (currentMSecOfLight * 180 / msecsOfLight) - 90;
-
-            double currentProduction = qCos(qDegreesToRadians(degrees)) * inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
-            qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << currentProduction << "W";
-            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -currentProduction);
-            double totalEnergyProduced = inverter->stateValue(solarInverterTotalEnergyProducedStateTypeId).toDouble();
-            totalEnergyProduced += (currentProduction / 1000) / 60 / 60 * 5;
-            inverter->setStateValue(solarInverterTotalEnergyProducedStateTypeId, totalEnergyProduced);
-
+        bool maxPower = inverter->setting(solarInverterSettingsMaxPowerParamTypeId).toBool();
+        if (maxPower) {
+            double maxProduction = inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
+            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -maxProduction);
         } else {
-            qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << "0" << "W";
-            inverter->setStateValue(solarInverterCurrentPowerStateTypeId, 0);
+            QDateTime now = QDateTime::currentDateTime();
+            int hoursOffset = inverter->setting(solarInverterSettingsHoursOffsetParamTypeId).toInt();
+            now = now.addSecs(hoursOffset * 60 * 60);
+
+            QPair<QDateTime, QDateTime> sunriseSunset = calculateSunriseSunset(48, 10, now);
+            QDateTime sunrise = sunriseSunset.first;
+            QDateTime sunset = sunriseSunset.second;
+
+            if (sunrise < now && now < sunset) {
+                qlonglong msecsOfLight = sunriseSunset.second.toMSecsSinceEpoch() - sunriseSunset.first.toMSecsSinceEpoch();
+                qlonglong currentMSecOfLight = now.toMSecsSinceEpoch() - sunrise.toMSecsSinceEpoch();
+                qreal degrees = (currentMSecOfLight * 180 / msecsOfLight) - 90;
+
+                double currentProduction = qCos(qDegreesToRadians(degrees)) * inverter->setting(solarInverterSettingsMaxCapacityParamTypeId).toDouble();
+                qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << currentProduction << "W";
+                inverter->setStateValue(solarInverterCurrentPowerStateTypeId, -currentProduction);
+                double totalEnergyProduced = inverter->stateValue(solarInverterTotalEnergyProducedStateTypeId).toDouble();
+                totalEnergyProduced += (currentProduction / 1000) / 60 / 60 * 5;
+                inverter->setStateValue(solarInverterTotalEnergyProducedStateTypeId, totalEnergyProduced);
+
+            } else {
+                qCDebug(dcEnergySimulation()) << "* Inverter" << inverter->name() << "production:" << "0" << "W";
+                inverter->setStateValue(solarInverterCurrentPowerStateTypeId, 0);
+            }
         }
+
+
     }
 
     // Update evchargers
@@ -261,6 +277,29 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             car->setStateValue("batteryCritical", car->stateValue("batteryLevel").toInt() < 10);
         }
     }
+
+    // Update generic consumer
+    foreach (Thing *apiConsumer, myThings().filterByThingClassId(apiConsumerThingClassId)) {
+        if (apiConsumer->stateValue(apiConsumerPowerStateTypeId).toBool()) {
+            double maxPower = apiConsumer->setting(apiConsumerSettingsMaxPowerParamTypeId).toDouble();
+            double currentPower = 0;
+            double totalEnergyConsumed = apiConsumer->stateValue(apiConsumerTotalEnergyConsumedStateTypeId).toDouble();
+            currentPower = maxPower;
+            if (apiConsumer->setting(apiConsumerSettingsUpdateTotalEnergyParamTypeId).toBool()) 
+            {
+                double newEnergy = (maxPower / 1000) / 60 / 60 * 5;
+                totalEnergyConsumed += newEnergy;
+                qCDebug(dcEnergySimulation()) << "* Adding " << newEnergy << "kWh to total energy consumed";
+                apiConsumer->setStateValue(apiConsumerTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+            }
+            apiConsumer->setStateValue(apiConsumerCurrentPowerStateTypeId, currentPower);
+
+            qCDebug(dcEnergySimulation()) << "* Generic consumer using" << currentPower << "W";
+        }else{
+            apiConsumer->setStateValue(apiConsumerCurrentPowerStateTypeId, 0);
+        }
+    }
+
 
     // Update stove
     foreach (Thing *stove, myThings().filterByThingClassId(stoveThingClassId)) {
@@ -435,7 +474,6 @@ void IntegrationPluginEnergySimulation::updateSimulation()
     totalPhasesConsumption["C"] += 100 + (qrand() % 10);
 
 
-
     // And add simulation devices consumption
     foreach (Thing *consumer, myThings()) {
         if (consumer->thingClass().interfaces().contains("smartmeterconsumer")) {
@@ -452,7 +490,6 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             }
         }
     }
-
 
     // Sum up all phases for the total consumption/production (momentary, in Watt)
     double totalProduction = 0;
