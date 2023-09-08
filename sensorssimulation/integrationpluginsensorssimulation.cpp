@@ -68,7 +68,8 @@ void IntegrationPluginSensorsSimulation::setupThing(ThingSetupInfo *info)
     if (thing->thingClassId() == fingerPrintSensorThingClassId ||
             thing->thingClassId() == barcodeScannerThingClassId ||
             thing->thingClassId() == contactSensorThingClassId ||
-            thing->thingClassId() == waterSensorThingClassId) {
+            thing->thingClassId() == waterSensorThingClassId ||
+            thing->thingClassId() == vibrationSensorThingClassId) {
         m_simulationTimers.insert(thing, new QTimer(thing));
         connect(m_simulationTimers[thing], &QTimer::timeout, this, &IntegrationPluginSensorsSimulation::simulationTimerTimeout);
     }
@@ -79,10 +80,16 @@ void IntegrationPluginSensorsSimulation::setupThing(ThingSetupInfo *info)
         m_simulationTimers.value(thing)->start(10000);
     }
     if (thing->thingClassId() == contactSensorThingClassId) {
-        m_simulationTimers.value(thing)->start(10000);
+        m_simulationTimers.value(thing)->start(1800000);
     }
     if (thing->thingClassId() == waterSensorThingClassId) {
         m_simulationTimers.value(thing)->start(10000);
+    }
+    if (thing->thingClassId() == vibrationSensorThingClassId) {
+        m_simulationTimers.value(thing)->start(10000);
+        QTimer::singleShot(2000, thing, [thing](){
+            thing->emitEvent(vibrationSensorVibrationDetectedEventTypeId);
+        });
     }
     info->finish(Thing::ThingErrorNoError);
 }
@@ -259,18 +266,18 @@ void IntegrationPluginSensorsSimulation::onPluginTimer20Seconds()
             // Garden sensor
             thing->setStateValue(gardenSensorTemperatureStateTypeId, generateSinValue(-4, 17, 5));
             thing->setStateValue(gardenSensorSoilMoistureStateTypeId, generateSinValue(40, 60, 13));
-            thing->setStateValue(gardenSensorIlluminanceStateTypeId, generateSinValue(0, 80, 2));
+            thing->setStateValue(gardenSensorLightIntensityStateTypeId, generateSinValue(0, 80, 2));
             thing->setStateValue(gardenSensorBatteryLevelStateTypeId, generateBatteryValue(9, 20));
             thing->setStateValue(gardenSensorBatteryCriticalStateTypeId, thing->stateValue(gardenSensorBatteryLevelStateTypeId).toDouble() <= 30);
             thing->setStateValue(gardenSensorConnectedStateTypeId, true);
-        } else if(thing->thingClassId() == netatmoIndoorThingClassId) {
+        } else if(thing->thingClassId() == weatherStationThingClassId) {
             // Netatmo
-            thing->setStateValue(netatmoIndoorUpdateTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
-            thing->setStateValue(netatmoIndoorHumidityStateTypeId, generateSinValue(35, 45, 13));
-            thing->setStateValue(netatmoIndoorTemperatureStateTypeId, generateSinValue(20, 25, 3));
-            thing->setStateValue(netatmoIndoorPressureStateTypeId, generateSinValue(1003, 1008, 8));
-            thing->setStateValue(netatmoIndoorNoiseStateTypeId, generateRandomIntValue(40, 80));
-            thing->setStateValue(netatmoIndoorWifiStrengthStateTypeId, generateRandomIntValue(85, 95));
+            thing->setStateValue(weatherStationUpdateTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
+            thing->setStateValue(weatherStationHumidityStateTypeId, generateSinValue(35, 45, 13));
+            thing->setStateValue(weatherStationTemperatureStateTypeId, generateSinValue(20, 25, 3));
+            thing->setStateValue(weatherStationPressureStateTypeId, generateSinValue(1003, 1008, 8));
+            thing->setStateValue(weatherStationNoiseStateTypeId, generateRandomIntValue(40, 80));
+            thing->setStateValue(weatherStationWifiStrengthStateTypeId, generateRandomIntValue(85, 95));
         }
     }
 }
@@ -278,13 +285,13 @@ void IntegrationPluginSensorsSimulation::onPluginTimer20Seconds()
 void IntegrationPluginSensorsSimulation::onPluginTimer5Minutes()
 {
     foreach (Thing *thing, myThings()) {
-        if(thing->thingClassId() == netatmoIndoorThingClassId) {
+        if(thing->thingClassId() == weatherStationThingClassId) {
             // Note: should change between > 1000 co2 < 1000 for showcase, please do not change this behaviour
-            int currentValue = thing->stateValue(netatmoIndoorCo2StateTypeId).toInt();
+            int currentValue = thing->stateValue(weatherStationCo2StateTypeId).toInt();
             if (currentValue < 1000) {
-                thing->setStateValue(netatmoIndoorCo2StateTypeId, generateRandomIntValue(1001, 1010));
+                thing->setStateValue(weatherStationCo2StateTypeId, generateRandomIntValue(1001, 1010));
             } else {
-                thing->setStateValue(netatmoIndoorCo2StateTypeId, generateRandomIntValue(950, 999));
+                thing->setStateValue(weatherStationCo2StateTypeId, generateRandomIntValue(950, 999));
             }
         }
     }
@@ -348,5 +355,10 @@ void IntegrationPluginSensorsSimulation::simulationTimerTimeout()
     } else if (thing->thingClassId() == waterSensorThingClassId) {
         bool wet = qrand() > (RAND_MAX / 2);
         thing->setStateValue(waterSensorWaterDetectedStateTypeId, wet);
+    } else if (thing->thingClassId() == vibrationSensorThingClassId) {
+        bool yes = qrand() < (RAND_MAX / 4);
+        if (yes) {
+            thing->emitEvent(vibrationSensorVibrationDetectedEventTypeId);
+        }
     }
 }

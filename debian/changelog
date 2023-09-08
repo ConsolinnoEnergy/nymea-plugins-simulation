@@ -1,10 +1,41 @@
+nymea-plugins-simulation (1.7.0-1) jammy; urgency=medium
+
+  [ Michael Zanetti ]
+  * Update thing class names to include "Simulated" in their names
+  * Sensors: Add min/max values to co2 sensor
+  * Weather station simulation: Add min/max to pressure state
+  * Window sensor simulation: Trigger state less often
+
+ -- jenkins <developer@nymea.io>  Tue, 21 Feb 2023 17:44:52 +0100
+
+nymea-plugins-simulation (1.6.3) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Wed, 01 Feb 2023 12:18:11 +0100
+
+nymea-plugins-simulation (1.6.2) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Mon, 16 Jan 2023 14:35:59 +0100
+
+nymea-plugins-simulation (1.6.1) jammy; urgency=medium
+
+
+ -- jenkins <developer@nymea.io>  Fri, 23 Dec 2022 11:32:40 +0100
+
+nymea-plugins-simulation (1.6.0) jammy; urgency=medium
+
+  [ Michael Zanetti ]
+  * Sensors: Add a vibration sensor
+
+ -- jenkins <developer@nymea.io>  Sat, 10 Dec 2022 14:54:31 +0100
+
 nymea-plugins-simulation (1.5.101-3) jammy; urgency=medium
 
   * Bumps version number to reflect fork: 1.5.1>01-1<-- Fork version based on upstream 1.5.1
   * Improved Heatpump simulation
 
  -- Leonhard Heizinger <l.heizinger@consolinno.de>  Wed, 14 Dec 2022 10:43:41 +0100
-
 
 nymea-plugins-simulation (1.5.1) jammy; urgency=medium
 
