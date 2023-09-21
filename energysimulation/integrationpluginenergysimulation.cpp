@@ -165,6 +165,17 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         }
     }
 
+    if (info->thing()->thingClassId() == smartHeatingRodThingClassId) {
+        if (info->action().actionTypeId() == smartHeatingRodPowerActionTypeId) {
+            uint power = info->action().paramValue(smartHeatingRodPowerActionPowerParamTypeId).toBool();
+            info->thing()->setStateValue(smartHeatingRodPowerStateTypeId, power);
+        }
+        if (info->action().actionTypeId() == smartHeatingRodHeatingPowerActionTypeId) {
+            double heating_power = info->action().paramValue(smartHeatingRodHeatingPowerActionHeatingPowerParamTypeId).toDouble();
+            info->thing()->setStateValue(smartHeatingRodHeatingPowerStateTypeId, heating_power);
+        }
+    }
+
     if (info->thing()->thingClassId() == apiConsumerThingClassId) {
         if (info->action().actionTypeId() == apiConsumerPowerActionTypeId) {
             uint power = info->action().paramValue(apiConsumerPowerActionPowerParamTypeId).toBool();
@@ -435,6 +446,27 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         qCDebug(dcEnergySimulation()) << "* Heatpump" << heatPump->name() << "consumes" << currentPower << "W" << "Energy consumed" << totalEnergyConsumed << "kWh";
         heatPump->setStateValue(simpleHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(simpleHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+    }
+
+
+    // Update heating rods
+    foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {
+        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodPowerStateTypeId).toBool();
+        double currentPower = 0;
+        if (heatingRodEnabled) {
+            currentPower = heatingRod->stateValue(smartHeatingRodHeatingPowerStateTypeId).toDouble();
+        }
+
+        int cycle = heatingRod->property("simulationCycle").toInt() % 12;
+        double totalEnergyConsumed = heatingRod->stateValue(smartHeatingRodTotalEnergyConsumedStateTypeId).toDouble();
+        if (cycle < 4)
+            totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;
+
+        heatingRod->setProperty("simulationCycle", cycle + 1);
+
+        qCDebug(dcEnergySimulation()) << "* Heating rod" << heatingRod->name() << "consumes" << currentPower << "W" << "Energy consumed" << totalEnergyConsumed << "kWh";
+        heatingRod->setStateValue(smartHeatingRodCurrentPowerStateTypeId, currentPower);
+        heatingRod->setStateValue(smartHeatingRodTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
 
 

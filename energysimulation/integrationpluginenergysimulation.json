@@ -846,6 +846,54 @@
                             "defaultValue": 0
                         }
                     ]
+                },
+                {
+                    "id": "f54c41f8-6e35-4503-a468-eb9a42a4f8fa",
+                    "name": "smartHeatingRod",
+                    "displayName": "Simulated smart heating rod",
+                    "createMethods": ["user"],
+                    "interfaces": [ "smartheatingrod", "smartmeterconsumer" ],
+                    "stateTypes": [
+                        {
+                            "id": "84db1333-9c18-4299-9a20-4f4f24cf14e5",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameAction": "Turn on/off heating rod",
+                            "type": "bool",
+                            "defaultValue": true,
+                            "writable": true
+                        },
+                        {
+                            "id": "fea74aa0-f722-4591-b00e-02942514d13c",
+                            "name": "heatingPower",
+                            "displayName": "Heating power",
+                            "displayNameAction": "Set heating power",
+                            "type": "int",
+                            "unit": "Watt",
+                            "maxValue": 10000,
+                            "minValue": 200,
+                            "defaultValue": 200,
+                            "writable": true,
+                            "cached": true
+                        },
+                        {
+                            "id": "84b63ca5-3ad0-43f7-b88f-dc3fece7a5f9",
+                            "name": "currentPower",
+                            "displayName": "Current power consumption",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "suggestLogging": true
+                        },
+                        {
+                            "id": "8e4c9dbf-bea3-4c73-9c1b-5905f87f4188",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total consumed energy",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0
+                        }
+                    ]
                 }
             ]
         }
