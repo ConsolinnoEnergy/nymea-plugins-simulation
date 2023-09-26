@@ -868,7 +868,7 @@
                             "name": "heatingPower",
                             "displayName": "Heating power",
                             "displayNameAction": "Set heating power",
-                            "type": "int",
+                            "type": "uint",
                             "unit": "Watt",
                             "maxValue": 10000,
                             "minValue": 200,
