@@ -727,7 +727,7 @@
                             "displayName": "Minimal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 3000
+                            "defaultValue": 500
                         },
                         {
                             "id": "78371258-ea51-42b9-8a18-aa5d56fe6e6d",
@@ -735,7 +735,7 @@
                             "displayName": "Maximal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 9000
+                            "defaultValue": 3000
                         },
                         {
                             "id": "79a06b96-b93b-4885-a01f-3afee8b1abec",
@@ -796,7 +796,7 @@
                             "displayName": "Minimal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 3000
+                            "defaultValue": 500
                         },
                         {
                             "id": "1132c814-62be-43f8-9760-2728e49010f3",
@@ -804,7 +804,7 @@
                             "displayName": "Maximal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 9000
+                            "defaultValue": 3000
                         },
                         {
                             "id": "152a6440-d379-4046-a75e-4e9d1dfae75b",
