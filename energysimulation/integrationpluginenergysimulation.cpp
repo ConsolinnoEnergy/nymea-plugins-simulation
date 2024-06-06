@@ -385,7 +385,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         uint minConsumption = heatPump->setting(sgReadyHeatPumpSettingsMinConsumptionParamTypeId).toUInt();
         uint maxConsumption = heatPump->setting(sgReadyHeatPumpSettingsMaxConsumptionParamTypeId).toUInt();
         double currentPower = 0;
-        bool in_on_slot = false;
+        bool is_on_slot = false;
 
         QTime temp;
         int hour = temp.currentTime().hour();
