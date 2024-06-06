@@ -385,29 +385,32 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         uint minConsumption = heatPump->setting(sgReadyHeatPumpSettingsMinConsumptionParamTypeId).toUInt();
         uint maxConsumption = heatPump->setting(sgReadyHeatPumpSettingsMaxConsumptionParamTypeId).toUInt();
         double currentPower = 0;
+        bool is_on_slot = false;
+
+        QTime temp;
+        int hour = temp.currentTime().hour();
+        if ((hour < 24) & (hour >= 0)){
+             is_on_slot = m_interval[hour];
+        } else{
+            qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
+        }
+        
+        currentPower = 10  + (qrand() % 5);
 
         if (operatingMode == "Off") {
             currentPower = 10  + (qrand() % 5); // We need some energy since only the pump is off, not the controller
         } else if (operatingMode == "Low") {
-            // follow the inteval defined in m_interval
-            QTime temp;
-            int hour = temp.currentTime().hour();
-            if ((hour < 24) & (hour >= 0)){
-                int activate = m_interval[hour];
-                if (activate == 1){
-                   currentPower = minConsumption + (qrand() % 20);
-                } else if (activate == 0){
-                   currentPower = 10  + (qrand() % 5);
-                }
-
-            } else{
-                qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
-
+            if (is_on_slot) {
+                currentPower = minConsumption + (qrand() % 20);
             }
         } else if (operatingMode == "Standard") {
+            if (is_on_slot) {
             currentPower = minConsumption + (maxConsumption - minConsumption) * 0.6 + (qrand() % 20);
+            }
         } else if (operatingMode == "High") {
+            if (is_on_slot) {
             currentPower = maxConsumption + (qrand() % 20);
+            }
         }
         // reading which cycle we are in. Every cyle is 5 sec )
         int cycle = heatPump->property("simulationCycle").toInt() % 12;
