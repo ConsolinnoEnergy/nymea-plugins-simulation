@@ -503,7 +503,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         {"B", 0},
         {"C", 0}
     };
-    // Simulate a base consumption of 300W (100 on each phase) + 10W jitter
+    // Simulate a base consumption of 300W + 27W jitter (100W on each phase +9W jitter) 
     totalPhasesConsumption["A"] += 100 + (qrand() % 10);
     totalPhasesConsumption["B"] += 100 + (qrand() % 10);
     totalPhasesConsumption["C"] += 100 + (qrand() % 10);
