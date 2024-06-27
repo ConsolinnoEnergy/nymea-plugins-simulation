@@ -100,7 +100,7 @@
                             "name": "phaseCount",
                             "displayName": "Active phases",
                             "type": "uint",
-                            "minValue": 1,
+                            "minValue": 0,
                             "maxValue": 3,
                             "defaultValue": 1
                         }
@@ -727,7 +727,7 @@
                             "displayName": "Minimal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 3000
+                            "defaultValue": 500
                         },
                         {
                             "id": "78371258-ea51-42b9-8a18-aa5d56fe6e6d",
@@ -735,7 +735,7 @@
                             "displayName": "Maximal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 9000
+                            "defaultValue": 3000
                         },
                         {
                             "id": "79a06b96-b93b-4885-a01f-3afee8b1abec",
@@ -796,7 +796,7 @@
                             "displayName": "Minimal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 3000
+                            "defaultValue": 500
                         },
                         {
                             "id": "1132c814-62be-43f8-9760-2728e49010f3",
@@ -804,7 +804,7 @@
                             "displayName": "Maximal consumption",
                             "unit": "Watt",
                             "type": "uint",
-                            "defaultValue": 9000
+                            "defaultValue": 3000
                         },
                         {
                             "id": "152a6440-d379-4046-a75e-4e9d1dfae75b",
@@ -839,6 +839,54 @@
                         },
                         {
                             "id": "7da7a8fb-68a7-41da-9185-ac03d62a2af1",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total consumed energy",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0
+                        }
+                    ]
+                },
+                {
+                    "id": "f54c41f8-6e35-4503-a468-eb9a42a4f8fa",
+                    "name": "smartHeatingRod",
+                    "displayName": "Simulated smart heating rod",
+                    "createMethods": ["user"],
+                    "interfaces": [ "smartheatingrod", "smartmeterconsumer" ],
+                    "stateTypes": [
+                        {
+                            "id": "84db1333-9c18-4299-9a20-4f4f24cf14e5",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameAction": "Turn on/off heating rod",
+                            "type": "bool",
+                            "defaultValue": true,
+                            "writable": true
+                        },
+                        {
+                            "id": "fea74aa0-f722-4591-b00e-02942514d13c",
+                            "name": "heatingPower",
+                            "displayName": "Heating power",
+                            "displayNameAction": "Set heating power",
+                            "type": "uint",
+                            "unit": "Watt",
+                            "maxValue": 10000,
+                            "minValue": 200,
+                            "defaultValue": 200,
+                            "writable": true,
+                            "cached": true
+                        },
+                        {
+                            "id": "84b63ca5-3ad0-43f7-b88f-dc3fece7a5f9",
+                            "name": "currentPower",
+                            "displayName": "Current power consumption",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "suggestLogging": true
+                        },
+                        {
+                            "id": "8e4c9dbf-bea3-4c73-9c1b-5905f87f4188",
                             "name": "totalEnergyConsumed",
                             "displayName": "Total consumed energy",
                             "type": "double",
