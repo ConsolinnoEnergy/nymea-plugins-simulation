@@ -1,3 +1,10 @@
+nymea-plugins-simulation (1.7.002) buster focal jammy; urgency=medium
+
+  * Added smart heating rod simulation
+
+ -- Leonhard Heizinger <l.heizinger@consolinno.de>  Fri, 01 Dec 2023 10:44:52 +0100
+
+
 nymea-plugins-simulation (1.7.001-1) buster focal jammy; urgency=medium
 
 * Adapt to new versioning schema

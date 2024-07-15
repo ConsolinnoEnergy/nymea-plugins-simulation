@@ -165,6 +165,17 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         }
     }
 
+    if (info->thing()->thingClassId() == smartHeatingRodThingClassId) {
+        if (info->action().actionTypeId() == smartHeatingRodPowerActionTypeId) {
+            uint power = info->action().paramValue(smartHeatingRodPowerActionPowerParamTypeId).toBool();
+            info->thing()->setStateValue(smartHeatingRodPowerStateTypeId, power);
+        }
+        if (info->action().actionTypeId() == smartHeatingRodHeatingPowerActionTypeId) {
+            double heating_power = info->action().paramValue(smartHeatingRodHeatingPowerActionHeatingPowerParamTypeId).toDouble();
+            info->thing()->setStateValue(smartHeatingRodHeatingPowerStateTypeId, heating_power);
+        }
+    }
+
     if (info->thing()->thingClassId() == apiConsumerThingClassId) {
         if (info->action().actionTypeId() == apiConsumerPowerActionTypeId) {
             uint power = info->action().paramValue(apiConsumerPowerActionPowerParamTypeId).toBool();
@@ -374,29 +385,32 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         uint minConsumption = heatPump->setting(sgReadyHeatPumpSettingsMinConsumptionParamTypeId).toUInt();
         uint maxConsumption = heatPump->setting(sgReadyHeatPumpSettingsMaxConsumptionParamTypeId).toUInt();
         double currentPower = 0;
+        bool is_on_slot = false;
+
+        QTime temp;
+        int hour = temp.currentTime().hour();
+        if ((hour < 24) & (hour >= 0)){
+             is_on_slot = m_interval[hour];
+        } else{
+            qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
+        }
+        
+        currentPower = 10  + (qrand() % 5);
 
         if (operatingMode == "Off") {
             currentPower = 10  + (qrand() % 5); // We need some energy since only the pump is off, not the controller
         } else if (operatingMode == "Low") {
-            // follow the inteval defined in m_interval
-            QTime temp;
-            int hour = temp.currentTime().hour();
-            if ((hour < 24) & (hour >= 0)){
-                int activate = m_interval[hour];
-                if (activate == 1){
-                   currentPower = minConsumption + (qrand() % 20);
-                } else if (activate == 0){
-                   currentPower = 10  + (qrand() % 5);
-                }
-
-            } else{
-                qCWarning(dcIntegrations()) << "Schedule Interval out of Bounds";
-
+            if (is_on_slot) {
+                currentPower = minConsumption + (qrand() % 20);
             }
         } else if (operatingMode == "Standard") {
+            if (is_on_slot) {
             currentPower = minConsumption + (maxConsumption - minConsumption) * 0.6 + (qrand() % 20);
+            }
         } else if (operatingMode == "High") {
+            if (is_on_slot) {
             currentPower = maxConsumption + (qrand() % 20);
+            }
         }
         // reading which cycle we are in. Every cyle is 5 sec )
         int cycle = heatPump->property("simulationCycle").toInt() % 12;
@@ -438,6 +452,27 @@ void IntegrationPluginEnergySimulation::updateSimulation()
     }
 
 
+    // Update heating rods
+    foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {
+        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodPowerStateTypeId).toBool();
+        double currentPower = 0;
+        if (heatingRodEnabled) {
+            currentPower = heatingRod->stateValue(smartHeatingRodHeatingPowerStateTypeId).toDouble();
+        }
+
+        int cycle = heatingRod->property("simulationCycle").toInt() % 12;
+        double totalEnergyConsumed = heatingRod->stateValue(smartHeatingRodTotalEnergyConsumedStateTypeId).toDouble();
+        if (cycle < 4)
+            totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;
+
+        heatingRod->setProperty("simulationCycle", cycle + 1);
+
+        qCDebug(dcEnergySimulation()) << "* Heating rod" << heatingRod->name() << "consumes" << currentPower << "W" << "Energy consumed" << totalEnergyConsumed << "kWh";
+        heatingRod->setStateValue(smartHeatingRodCurrentPowerStateTypeId, currentPower);
+        heatingRod->setStateValue(smartHeatingRodTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+    }
+
+
     /////////////////////////////////////////////////////
     /// Energy meter
     ////////////////////////////////////////////////////
@@ -468,7 +503,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         {"B", 0},
         {"C", 0}
     };
-    // Simulate a base consumption of 300W (100 on each phase) + 10W jitter
+    // Simulate a base consumption of 300W + 27W jitter (100W on each phase +9W jitter) 
     totalPhasesConsumption["A"] += 100 + (qrand() % 10);
     totalPhasesConsumption["B"] += 100 + (qrand() % 10);
     totalPhasesConsumption["C"] += 100 + (qrand() % 10);
