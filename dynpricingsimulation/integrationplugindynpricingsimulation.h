@@ -46,6 +46,7 @@ public:
 
     void setupThing(ThingSetupInfo *info) override;
     void thingRemoved(Thing *thing) override;
+    void executeAction(ThingActionInfo *info) override;
 
 private slots:
     void onPluginTimer();
@@ -73,6 +74,9 @@ private:
     StateTypeId m_currentSlotStateTypeId;
     StateTypeId m_currentSlotISOStateTypeId;
     StateTypeId m_dataDurationStateTypeId;
+    StateTypeId m_currentMarketPriceOverrideStateTypeId;
+    StateTypeId m_overridePriceStateTypeId;
+    StateTypeId m_deviationOverrideStateTypeId;
 
 };
 

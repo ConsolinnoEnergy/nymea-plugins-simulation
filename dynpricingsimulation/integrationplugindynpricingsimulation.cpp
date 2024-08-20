@@ -21,6 +21,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 #include "integrationplugindynpricingsimulation.h"
+#include "dummydata.h"
 
 #include <QDateTime>
 #include <QFile>
@@ -54,17 +55,22 @@ IntegrationPluginDynPricing::IntegrationPluginDynPricing()
     m_currentSlotStateTypeId = elpricingCurrentSlotStateTypeId;
     m_currentSlotISOStateTypeId = elpricingCurrentSlotISOStateTypeId;
     m_dataDurationStateTypeId = elpricingDataDurationStateTypeId;
+    m_currentMarketPriceOverrideStateTypeId = elpricingCurrentMarketPriceOverrideStateTypeId;
+    m_overridePriceStateTypeId = elpricingOverridePriceStateTypeId;
+    m_deviationOverrideStateTypeId = elpricingDeviationOverrideStateTypeId;
 }
 
 IntegrationPluginDynPricing::~IntegrationPluginDynPricing() { }
 
 void IntegrationPluginDynPricing::setupThing(ThingSetupInfo *info)
 {
-    qCDebug(dcDynpricingsimulation) << "Setup thing" << info->thing()->name() << info->thing()->params();
+    qCDebug(dcDynpricingsimulation)
+            << "Setup thing" << info->thing()->name() << info->thing()->params();
 
     if (!m_pluginTimer) {
         m_pluginTimer = hardwareManager()->pluginTimerManager()->registerTimer(60);
-        connect(m_pluginTimer, &PluginTimer::timeout, this, &IntegrationPluginDynPricing::onPluginTimer);
+        connect(m_pluginTimer, &PluginTimer::timeout, this,
+                &IntegrationPluginDynPricing::onPluginTimer);
     }
 
     // Get token from client_id and client_secret from /etc/nymea/flexa.conf file
@@ -92,7 +98,8 @@ void IntegrationPluginDynPricing::setupThing(ThingSetupInfo *info)
     // Check if token and serverUrl are not empty
     // If empty, return error
     if (token.isEmpty() || serverUrl.isEmpty()) {
-        qCWarning(dcDynpricingsimulation) << "Could not find token or serverURL in /etc/nymea/flexa.conf";
+        qCWarning(dcDynpricingsimulation)
+                << "Could not find token or serverURL in /etc/nymea/flexa.conf";
         info->finish(Thing::ThingErrorHardwareFailure, QT_TR_NOOP("Could not find credentials."));
         return;
     }
@@ -126,7 +133,8 @@ void IntegrationPluginDynPricing::onPluginTimer()
         QDateTime validUntil =
                 QDateTime::fromTime_t(thing->stateValue(m_validUntilStateTypeId).toUInt());
         qint32 secsToNextSlot = QDateTime::currentDateTime().secsTo(validUntil);
-        qCDebug(dcDynpricingsimulation) << "Price data valid for " << secsToNextSlot << " more seconds";
+        qCDebug(dcDynpricingsimulation)
+                << "Price data valid for " << secsToNextSlot << " more seconds";
         // random value between 900 and 1800 seconds to spread requests
 
         if (secsToNextSlot < secsBeforeExpired) {
@@ -134,6 +142,52 @@ void IntegrationPluginDynPricing::onPluginTimer()
             requestPriceData(thing);
         }
     }
+}
+void IntegrationPluginDynPricing::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == elpricingOverridePriceActionTypeId) {
+        info->thing()->setStateValue(
+                m_overridePriceStateTypeId,
+                info->action().paramValue(elpricingOverridePriceActionTypeId).toBool());
+        if (info->action().paramValue(elpricingOverridePriceActionTypeId).toBool()) {
+            info->thing()->setStateValue(
+                    m_currentMarketPriceStateTypeId,
+                    info->thing()->stateValue(m_currentMarketPriceOverrideStateTypeId));
+            info->thing()->setStateValue(m_averageDeviationStateTypeId,
+                                         info->thing()->stateValue(m_deviationOverrideStateTypeId));
+        } else {
+            processPriceData(info->thing());
+        }
+    }
+    if (info->action().actionTypeId() == elpricingCurrentMarketPriceOverrideActionTypeId) {
+        info->thing()->setStateValue(
+                m_currentMarketPriceOverrideStateTypeId,
+                info->action()
+                        .paramValue(elpricingCurrentMarketPriceOverrideActionTypeId)
+                        .toDouble());
+        if (info->thing()->stateValue(m_overridePriceStateTypeId).toBool()) {
+            qCDebug(dcDynpricingsimulation)
+                    << "Price override is active. Setting jprice to override price: "
+                    << info->thing()->stateValue(m_currentMarketPriceOverrideStateTypeId);
+            info->thing()->setStateValue(
+                    m_currentMarketPriceStateTypeId,
+                    info->thing()->stateValue(m_currentMarketPriceOverrideStateTypeId));
+        }
+    }
+    if (info->action().actionTypeId() == elpricingDeviationOverrideActionTypeId) {
+        info->thing()->setStateValue(
+                m_deviationOverrideStateTypeId,
+                info->action().paramValue(elpricingDeviationOverrideActionTypeId).toInt());
+        if (info->thing()->stateValue(m_overridePriceStateTypeId).toBool()) {
+            qCDebug(dcDynpricingsimulation)
+                    << "Price override is active. Setting deviation to override deviation: "
+                    << info->thing()->stateValue(m_deviationOverrideStateTypeId);
+            info->thing()->setStateValue(m_averageDeviationStateTypeId,
+                                         info->thing()->stateValue(m_deviationOverrideStateTypeId));
+        }
+    }
+
+    info->finish(Thing::ThingErrorNoError);
 }
 
 void IntegrationPluginDynPricing::thingRemoved(Thing *thing)
@@ -153,7 +207,38 @@ void IntegrationPluginDynPricing::updateData(Thing *thing)
 
 void IntegrationPluginDynPricing::requestPriceData(Thing *thing, ThingSetupInfo *setup)
 {
-    //m_jsonResponse = QJsonDocument::fromJson(...
+    // Parse the JSON
+    QJsonDocument doc = QJsonDocument::fromJson(jsonStringOneDay.toUtf8());
+    QJsonObject rootObj = doc.object();
+
+    // Get the current date
+    QString currentDate = QDate::currentDate().toString("yyyy-MM-dd");
+
+    // Update the date in the time fields
+    QJsonObject responseObj = rootObj["response"].toObject();
+    QJsonArray daPricesArray = responseObj["daPrices"].toArray();
+
+    for (int i = 0; i < daPricesArray.size(); ++i) {
+        QJsonObject priceObj = daPricesArray[i].toObject();
+        QString timeStr = priceObj["time"].toString();
+
+        // Extract the time of day part
+        QString timeOfDay = timeStr.mid(11); // "Txx:xx:xxZ"
+
+        // Construct the new datetime string
+        QString newTimeStr = currentDate + "T" + timeOfDay;
+
+        // Update the JSON object
+        priceObj["time"] = newTimeStr;
+        daPricesArray[i] = priceObj;
+    }
+
+    // Replace the daPrices array in the JSON object
+    responseObj["daPrices"] = daPricesArray;
+    rootObj["response"] = responseObj;
+
+    m_jsonResponse = doc;
+
     if (setup) {
         setup->finish(Thing::ThingErrorNoError);
     }
@@ -183,6 +268,16 @@ QDateTime IntegrationPluginDynPricing::roundToPrev15Minutes(const QDateTime &dat
 
 void IntegrationPluginDynPricing::processPriceData(Thing *thing)
 {
+    if (thing->stateValue(m_overridePriceStateTypeId).toBool()) {
+        thing->setStateValue(m_currentMarketPriceStateTypeId,
+                             thing->stateValue(m_currentMarketPriceOverrideStateTypeId));
+        qCDebug(dcDynpricingsimulation)
+                << "Price override is active. Skipping data processing. And setting price to "
+                   "override price: "
+                << thing->stateValue(m_currentMarketPriceOverrideStateTypeId);
+        return;
+    }
+
     if (m_jsonResponse.isEmpty()) {
         qCWarning(dcDynpricingsimulation)
                 << "No data to process. Plugin should get data from server first.";
@@ -232,8 +327,8 @@ void IntegrationPluginDynPricing::processPriceData(Thing *thing)
         double price = elementMap.value("value").toDouble() / 10; // €/kWh -> ct/kWh
         // Add entry to priceMap using ISO 8601 date time string as key
         priceMap[startTime.toString(Qt::ISODate)] = price;
-        qCDebug(dcDynpricingsimulation) << "Slot" << startTime.toString(Qt::ISODate) << "–– Price"
-                                  << price << "ct/kWh";
+        qCDebug(dcDynpricingsimulation)
+                << "Slot" << startTime.toString(Qt::ISODate) << "–– Price" << price << "ct/kWh";
         sum += price;
         count++;
 

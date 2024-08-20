@@ -25,6 +25,40 @@
                     "setupMethod": "JustAdd",
                     "stateTypes": [
                         {
+                            "id": "80f62543-6e35-4ad1-9994-cfcf6d9a01ad",
+                            "name": "overridePrice",
+                            "displayName": "Override price",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true,
+                            "displayNameAction": "Enable override price"
+                        },
+                        {
+                            "defaultValue": 10,
+                            "displayName": "Current market price (override)",
+                            "displayNameEvent": "Current market price override changed",
+                            "id": "88dbaa37-8487-4f98-9cd9-5d861cd726ec",
+                            "name": "currentMarketPriceOverride",
+                            "suggestLogging": true,
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour",
+                            "writable": true,
+                            "displayNameAction": "Set override price"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Deviation (override)",
+                            "displayNameEvent": "Current market price deviation changed",
+                            "id": "646c7ccc-cc35-4f8c-bc77-0fd1cf2963d9",
+                            "name": "deviationOverride",
+                            "suggestLogging": true,
+                            "type": "double",
+                            "unit": "Percentage",
+                            "writable": true,
+                            "displayNameAction": "Set override deviation"
+                        },
+
+                        {
                             "cached": false,
                             "defaultValue": false,
                             "displayName": "Online",
