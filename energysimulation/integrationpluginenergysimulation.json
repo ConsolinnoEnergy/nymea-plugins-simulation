@@ -744,22 +744,6 @@
                             "type": "QString",
                             "allowedValues": ["A", "B", "C", "All"],
                             "defaultValue": "All"
-                        },
-                        {
-                            "id": "a2045376-4330-4f63-9408-665b19d3754e",
-                            "name": "bufferCapacity",
-                            "displayName": "Buffer capacity",
-                            "type": "uint",
-                            "unit": "kWh",
-                            "defaultValue": 20
-                        },
-                        {
-                            "id": "37a736f0-f0b7-4e94-bcf4-c54478e70c5d",
-                            "name": "meanDailyHeatDemand",
-                            "displayName": "Mean daily heat demand",
-                            "type": "uint",
-                            "unit": "kWh",
-                            "defaultValue": 15
                         }
                     ],
                     "stateTypes": [
