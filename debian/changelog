@@ -1,4 +1,10 @@
-nymea-plugins-simulation (1.7.002) buster focal jammy; urgency=medium
+nymea-plugins-simulation (1.7.003) buster focal jammy; urgency=medium
+
+  * Added dynamic pricing simulation
+
+ -- Leonhard Heizinger <l.heizinger@consolinno.de>  Fri, 23 Aug 2024 10:44:52 +0100
+
+ymea-plugins-simulation (1.7.002) buster focal jammy; urgency=medium
 
   * Added smart heating rod simulation
 
