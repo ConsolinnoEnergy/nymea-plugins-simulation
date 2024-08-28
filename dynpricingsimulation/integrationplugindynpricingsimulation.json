@@ -1,0 +1,174 @@
+{
+    "displayName": "Dynamic Pricing Simulation",
+    "id": "b80a2c62-8f27-4c4e-9b70-f9cc7f12b5f3",
+    "name": "dynpricingsimulation",
+    "vendors": [
+        {
+            "displayName": "Consolinno Energy GmbH",
+            "id": "8721d4fa-b196-4ba7-beb2-348a72b3b580",
+            "name": "consolinno",
+            "thingClasses": [
+                {
+                    "actionTypes": [],
+                    "createMethods": [
+                        "User"
+                    ],
+                    "displayName": "Simulated Electricity Pricing",
+                    "eventTypes": [],
+                    "id": "2b7d1c21-1086-4bb4-b3a2-624759d9357c",
+                    "interfaces": [
+                        "connectable",
+                        "dynamicelectricitypricing"
+                    ],
+                    "name": "elpricing",
+                    "paramTypes": [],
+                    "setupMethod": "JustAdd",
+                    "stateTypes": [
+                        {
+                            "id": "80f62543-6e35-4ad1-9994-cfcf6d9a01ad",
+                            "name": "overridePrice",
+                            "displayName": "Override price",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true,
+                            "displayNameAction": "Enable override price"
+                        },
+                        {
+                            "defaultValue": 10,
+                            "displayName": "Current market price (override)",
+                            "displayNameEvent": "Current market price override changed",
+                            "id": "88dbaa37-8487-4f98-9cd9-5d861cd726ec",
+                            "name": "currentMarketPriceOverride",
+                            "suggestLogging": true,
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour",
+                            "writable": true,
+                            "displayNameAction": "Set override price"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Deviation (override)",
+                            "displayNameEvent": "Current market price deviation changed",
+                            "id": "646c7ccc-cc35-4f8c-bc77-0fd1cf2963d9",
+                            "name": "deviationOverride",
+                            "suggestLogging": true,
+                            "type": "double",
+                            "unit": "Percentage",
+                            "writable": true,
+                            "displayNameAction": "Set override deviation"
+                        },
+
+                        {
+                            "cached": false,
+                            "defaultValue": false,
+                            "displayName": "Online",
+                            "displayNameEvent": "Online changed",
+                            "id": "e38757e0-6d9c-4a66-91e2-4135de3bdf51",
+                            "name": "connected",
+                            "type": "bool"
+                        },
+                        {
+                            "defaultValue": [],
+                            "displayName": "Current price series",
+                            "displayNameEvent": "Current price series changed",
+                            "id": "4a85006c-1f76-4700-88d1-12e09791d69d",
+                            "name": "priceSeries",
+                            "type": "QVariantMap",
+                            "unit": "EuroCentPerKiloWattHour"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Current time slot",
+                            "displayNameEvent": "Current time slot changed",
+                            "id": "e305b8c3-c8a5-413b-9c7a-c16e93eeb8f9",
+                            "name": "currentSlot",
+                            "type": "int",
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "defaultValue": "",
+                            "displayName": "Current time slot (ISO)",
+                            "displayNameEvent": "Current time slot (ISO) changed",
+                            "id": "1d00a09b-b9b2-4ae4-b2b5-b8d3d65f35e5",
+                            "name": "currentSlotISO",
+                            "type": "QString"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Current market price",
+                            "displayNameEvent": "Current market price changed",
+                            "id": "85da056d-8a5d-4b23-8da3-499a00cc8969",
+                            "name": "currentMarketPrice",
+                            "suggestLogging": true,
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Average deviation",
+                            "displayNameEvent": "Average deviation changed",
+                            "id": "e1bb39dc-9dcf-4b1a-8987-595b8cf9c87e",
+                            "name": "averageDeviation",
+                            "type": "int",
+                            "unit": "Percentage"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Valid until",
+                            "displayNameEvent": "Valid until changed",
+                            "id": "262b9cfc-1187-4b8f-925a-3a43930e44db",
+                            "name": "validUntil",
+                            "type": "int",
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Valid since",
+                            "displayNameEvent": "Valid since changed",
+                            "id": "2392b15b-2ddf-4c8d-8d7e-299097cb7d67",
+                            "name": "validSince",
+                            "type": "int",
+                            "unit": "UnixTime"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Data duration",
+                            "displayNameEvent": "Data duration changed",
+                            "id": "e0b65d7d-1f7a-4bd2-8d1c-9209d6217ac8",
+                            "name": "dataDuration",
+                            "type": "int",
+                            "unit": "Hours"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Average market price",
+                            "displayNameEvent": "Average market price changed",
+                            "id": "a88cbbf7-2e2b-4208-b47e-1cf8e107b3e7",
+                            "name": "averagePrice",
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Lowest market price",
+                            "displayNameEvent": "Lowest market price changed",
+                            "id": "ff8a3a3c-356f-421a-99c7-8e90fdaf2991",
+                            "name": "lowestPrice",
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour"
+                        },
+                        {
+                            "defaultValue": 0,
+                            "displayName": "Highest market price",
+                            "displayNameEvent": "Highest market price changed",
+                            "id": "47f26e44-06d1-4e7f-8a25-7b2d3c891c30",
+                            "name": "highestPrice",
+                            "type": "double",
+                            "unit": "EuroCentPerKiloWattHour"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
