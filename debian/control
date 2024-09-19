@@ -35,6 +35,14 @@ Description: nymea.io simulation plugin for energy use cases
  This plugin simulates energy related devices such as solar inverters,
  evchargers, energy meters and several other consumers.
 
+Package: nymea-plugin-dynpricing-simulation
+Architecture: any
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: nymea.io simulation plugin for dynamic pricing.
+
+
 Package: nymea-plugin-heating-simulation
 Architecture: any
 Section: libs

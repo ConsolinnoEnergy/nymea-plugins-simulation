@@ -6,6 +6,7 @@ PLUGIN_DIRS = \
     sensorssimulation \
     closablessimulation \
     appliancessimulation \
+    dynpricingsimulation \
 
 
 plugininfo.depends = FORCE
