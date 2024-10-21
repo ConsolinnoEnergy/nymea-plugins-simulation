@@ -1,6 +1,7 @@
 nymea-plugins-simulation (1.7.003) buster focal jammy; urgency=medium
 
   * Added dynamic pricing simulation
+  * Adopt changes of smartheatingrod interface
 
  -- Leonhard Heizinger <l.heizinger@consolinno.de>  Fri, 23 Aug 2024 10:44:52 +0100
 
