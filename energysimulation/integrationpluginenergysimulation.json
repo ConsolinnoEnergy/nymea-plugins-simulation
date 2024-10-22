@@ -856,9 +856,9 @@
                     "stateTypes": [
                         {
                             "id": "84db1333-9c18-4299-9a20-4f4f24cf14e5",
-                            "name": "power",
-                            "displayName": "Power",
-                            "displayNameAction": "Turn on/off heating rod",
+                            "name": "externalControl",
+                            "displayName": "External control",
+                            "displayNameAction": "Turn on/off external control of heating rod",
                             "type": "bool",
                             "defaultValue": true,
                             "writable": true
