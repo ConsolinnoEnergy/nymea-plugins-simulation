@@ -427,6 +427,8 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(sgReadyHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+    // update simple heat pump
     foreach (Thing *heatPump, myThings().filterByThingClassId(simpleHeatPumpThingClassId)) {
         bool heatpumpEnabled = heatPump->stateValue(simpleHeatPumpPowerStateTypeId).toBool();
         QString phase = heatPump->setting(simpleHeatPumpSettingsPhaseParamTypeId).toString();
@@ -451,6 +453,13 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(simpleHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
 
+    // update surplus heatpumps
+    foreach (Thing *heatPump, myThings().filterByThingClassId(surPlusHeatPumpThingClassId)) {   
+        heatPump->setStateValue(surPlusHeatPumpPowerStateTypeId, 12);
+        heatPump->setStateValue(surPlusHeatPumpSurPlusPowerStateTypeId, 23);
+        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 34);
+        heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, 45);
+    }
 
     // Update heating rods
     foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {

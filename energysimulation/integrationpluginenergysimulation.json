@@ -784,6 +784,81 @@
                     ]
                 },
                 {
+                    "id": "cbb1c146-072e-4375-a834-9185dcf4519a",
+                    "name": "surPlusHeatPump",
+                    "displayName": "Simulated heat pump (PV Optimized)",
+                    "createMethods": ["user"],
+                    "interfaces": [ "simpleheatpump", "smartmeterconsumer" ],
+                    "settingsTypes": [
+                        {
+                            "id": "9369a5d5-48b0-4565-9dd1-1af10b2a6f18",
+                            "name": "minConsumption",
+                            "displayName": "Minimal consumption",
+                            "unit": "Watt",
+                            "type": "uint",
+                            "defaultValue": 500
+                        },
+                        {
+                            "id": "936e67ab-6abd-4df6-b5dd-21bf4348e1d1",
+                            "name": "maxConsumption",
+                            "displayName": "Maximal consumption",
+                            "unit": "Watt",
+                            "type": "uint",
+                            "defaultValue": 3000
+                        },
+                        {
+                            "id": "da554929-c733-47c0-af84-a4068f1e375c",
+                            "name": "phase",
+                            "displayName": "Connected on phase",
+                            "type": "QString",
+                            "allowedValues": ["A", "B", "C", "All"],
+                            "defaultValue": "All"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "9cc7c101-246d-4150-80ea-dc37effba1e7",
+                            "name": "power",
+                            "displayName": "Heat pump enabled",
+                            "displayNameAction": "Enable/Disable heat pump",
+                            "type": "bool",
+                            "writable": true,
+                            "defaultValue": false,
+                            "cached": true,
+                            "ioType": "digitalInput",
+                            "suggestLogging": true
+                        },
+                        {
+                            "id": "80998fe0-9b36-42b1-8ce7-bb1597add1f2",
+                            "name": "surPlusPower",
+                            "displayName": "Current surplus power",
+                            "displayNameAction": "Set surplus power",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "suggestLogging": true,
+                            "writable": true
+                        },
+                        {
+                            "id": "31596c3d-818c-46f4-a9db-019d29630988",
+                            "name": "currentPower",
+                            "displayName": "Current power consumption",
+                            "type": "double",
+                            "unit": "Watt",
+                            "defaultValue": 0,
+                            "suggestLogging": true
+                        },
+                        {
+                            "id": "84697ddf-4e98-4631-8aa2-dd35b1c186d6",
+                            "name": "totalEnergyConsumed",
+                            "displayName": "Total consumed energy",
+                            "type": "double",
+                            "unit": "KiloWattHour",
+                            "defaultValue": 0
+                        }
+                    ]
+                },
+                {
                     "id": "87850b78-db40-44c8-948c-363c0f85cd7c",
                     "name": "simpleHeatPump",
                     "displayName": "Simulated heat pump (simple)",
