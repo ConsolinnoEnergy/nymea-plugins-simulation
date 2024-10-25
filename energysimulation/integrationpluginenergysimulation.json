@@ -21,15 +21,26 @@
                     "name": "wallbox",
                     "displayName": "Simulated wallbox",
                     "id": "21a48e6d-6152-407a-a303-3b46e29bbb94",
-                    "createMethods": ["discovery", "user"],
-                    "interfaces": ["evcharger", "smartmeterconsumer"],
+                    "createMethods": [
+                        "discovery",
+                        "user"
+                    ],
+                    "interfaces": [
+                        "evcharger",
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "73df6376-2495-4d61-a832-6de922528c6a",
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C", "All"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C",
+                                "All"
+                            ],
                             "defaultValue": "All"
                         },
                         {
@@ -41,7 +52,7 @@
                             "defaultValue": 63
                         }
                     ],
-                    "stateTypes":[
+                    "stateTypes": [
                         {
                             "id": "568ad91a-c6b3-4b20-82d9-ea5afe38c209",
                             "name": "power",
@@ -110,8 +121,13 @@
                     "name": "solarInverter",
                     "displayName": "Simulated solar inverter",
                     "id": "f1e91782-8bc1-4bcb-a07e-e66b01fe7be5",
-                    "createMethods": ["discovery", "user"],
-                    "interfaces": ["solarinverter"],
+                    "createMethods": [
+                        "discovery",
+                        "user"
+                    ],
+                    "interfaces": [
+                        "solarinverter"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "73e80177-5a38-4139-957d-97cda3e0fae3",
@@ -133,7 +149,12 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C", "All"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C",
+                                "All"
+                            ],
                             "defaultValue": "All"
                         },
                         {
@@ -146,7 +167,7 @@
                             "defaultValue": 0
                         }
                     ],
-                    "stateTypes":[
+                    "stateTypes": [
                         {
                             "id": "cc290fd9-ce58-410e-9eb4-2e92a1216628",
                             "name": "totalEnergyProduced",
@@ -169,9 +190,14 @@
                     "name": "smartMeter",
                     "displayName": "Simulated smart meter",
                     "id": "d96c77e3-dbf1-4875-95a4-7ca85aa3ef8e",
-                    "createMethods": ["discovery", "user"],
-                    "interfaces": ["energymeter"],
-                    "stateTypes":[
+                    "createMethods": [
+                        "discovery",
+                        "user"
+                    ],
+                    "interfaces": [
+                        "energymeter"
+                    ],
+                    "stateTypes": [
                         {
                             "id": "a0b1e0a3-28cd-4c33-aa77-2a060e27f2f9",
                             "name": "totalEnergyConsumed",
@@ -322,15 +348,23 @@
                     "id": "3e13b1aa-4ecd-4b48-80be-0dfcc0e5cbe4",
                     "name": "apiConsumer",
                     "displayName": "Generic simulated consumer (API)",
-                    "createMethods": ["user"],
-                    "interfaces": ["smartmeterconsumer"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "561b3574-3a09-4d09-a20c-dc906b99114c",
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C"
+                            ],
                             "defaultValue": "A"
                         },
                         {
@@ -348,8 +382,6 @@
                             "type": "bool",
                             "defaultValue": true
                         }
-
-
                     ],
                     "stateTypes": [
                         {
@@ -386,8 +418,12 @@
                     "id": "51a34654-0e29-45ef-b361-305633838bf2",
                     "name": "stove",
                     "displayName": "Simulated stove",
-                    "createMethods": ["user"],
-                    "interfaces": ["smartmeterconsumer"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "60c12282-95ba-493c-83c2-9e1643a0fe37",
@@ -402,7 +438,11 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C"
+                            ],
                             "defaultValue": "A"
                         },
                         {
@@ -445,8 +485,12 @@
                     "id": "be175640-c2eb-462c-87ec-45d29ec120cd",
                     "name": "fridge",
                     "displayName": "Simulated fridge",
-                    "createMethods": ["user"],
-                    "interfaces": ["smartmeterconsumer"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "b4a04537-f57b-4bc5-89b7-5d67fc5b7f29",
@@ -461,7 +505,11 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C"
+                            ],
                             "defaultValue": "A"
                         }
                     ],
@@ -488,8 +536,12 @@
                     "id": "23617f91-b2e4-42f8-90a7-92188415d3d4",
                     "name": "apiCar",
                     "displayName": "Simulated car (with API)",
-                    "createMethods": ["user"],
-                    "interfaces": ["electricvehicle"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "electricvehicle"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "59f7be2e-f63d-4f23-a2b5-f045c1b39aab",
@@ -500,7 +552,7 @@
                             "defaultValue": 50
                         }
                     ],
-                    "stateTypes": [ 
+                    "stateTypes": [
                         {
                             "id": "c640d783-d130-4e3a-afd7-ec15f2c948fa",
                             "name": "capacity",
@@ -564,8 +616,12 @@
                     "id": "4afcafb1-d341-4532-8062-738cae529cb5",
                     "name": "genericCar",
                     "displayName": "Simulated generic car",
-                    "createMethods": ["user"],
-                    "interfaces": ["electricvehicle"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "electricvehicle"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "d63053aa-ac59-4e15-95b5-67ec2c73798d",
@@ -642,8 +698,12 @@
                     "id": "d691ccc4-acf7-428f-b6b2-30f36be10c7a",
                     "name": "battery",
                     "displayName": "Simulated battery",
-                    "createMethods": ["user"],
-                    "interfaces": ["energystorage"],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "energystorage"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "4cf4f5b5-1602-4612-8f59-23ceff14c296",
@@ -666,7 +726,11 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C"
+                            ],
                             "defaultValue": "A"
                         }
                     ],
@@ -701,7 +765,11 @@
                             "name": "chargingState",
                             "displayName": "Charging state",
                             "type": "QString",
-                            "possibleValues": ["idle", "charging", "discharging"],
+                            "possibleValues": [
+                                "idle",
+                                "charging",
+                                "discharging"
+                            ],
                             "defaultValue": "idle"
                         },
                         {
@@ -718,8 +786,13 @@
                     "id": "e413a8a8-ab95-408b-998e-8a0d24602037",
                     "name": "sgReadyHeatPump",
                     "displayName": "Simulated heat pump (SG Ready)",
-                    "createMethods": ["user"],
-                    "interfaces": [ "smartgridheatpump", "smartmeterconsumer" ],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "smartgridheatpump",
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "f9674cd1-a019-4e0b-81c3-3c01bff427cf",
@@ -742,7 +815,12 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C", "All"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C",
+                                "All"
+                            ],
                             "defaultValue": "All"
                         }
                     ],
@@ -787,50 +865,18 @@
                     "id": "cbb1c146-072e-4375-a834-9185dcf4519a",
                     "name": "surPlusHeatPump",
                     "displayName": "Simulated heat pump (PV Optimized)",
-                    "createMethods": ["user"],
-                    "interfaces": [ "simpleheatpump", "smartmeterconsumer" ],
-                    "settingsTypes": [
-                        {
-                            "id": "9369a5d5-48b0-4565-9dd1-1af10b2a6f18",
-                            "name": "minConsumption",
-                            "displayName": "Minimal consumption",
-                            "unit": "Watt",
-                            "type": "uint",
-                            "defaultValue": 500
-                        },
-                        {
-                            "id": "936e67ab-6abd-4df6-b5dd-21bf4348e1d1",
-                            "name": "maxConsumption",
-                            "displayName": "Maximal consumption",
-                            "unit": "Watt",
-                            "type": "uint",
-                            "defaultValue": 3000
-                        },
-                        {
-                            "id": "da554929-c733-47c0-af84-a4068f1e375c",
-                            "name": "phase",
-                            "displayName": "Connected on phase",
-                            "type": "QString",
-                            "allowedValues": ["A", "B", "C", "All"],
-                            "defaultValue": "All"
-                        }
+                    "createMethods": [
+                        "user"
                     ],
+                    "interfaces": [
+                        "heatpump",
+                        "smartmeterconsumer"
+                    ],
+                    "settingsTypes": [],
                     "stateTypes": [
                         {
-                            "id": "9cc7c101-246d-4150-80ea-dc37effba1e7",
-                            "name": "power",
-                            "displayName": "Heat pump enabled",
-                            "displayNameAction": "Enable/Disable heat pump",
-                            "type": "bool",
-                            "writable": true,
-                            "defaultValue": false,
-                            "cached": true,
-                            "ioType": "digitalInput",
-                            "suggestLogging": true
-                        },
-                        {
                             "id": "80998fe0-9b36-42b1-8ce7-bb1597add1f2",
-                            "name": "surPlusPower",
+                            "name": "actualPvSurplus",
                             "displayName": "Current surplus power",
                             "displayNameAction": "Set surplus power",
                             "type": "double",
@@ -862,8 +908,13 @@
                     "id": "87850b78-db40-44c8-948c-363c0f85cd7c",
                     "name": "simpleHeatPump",
                     "displayName": "Simulated heat pump (simple)",
-                    "createMethods": ["user"],
-                    "interfaces": [ "simpleheatpump", "smartmeterconsumer" ],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "simpleheatpump",
+                        "smartmeterconsumer"
+                    ],
                     "settingsTypes": [
                         {
                             "id": "4967f3e3-1286-4a53-a3da-e36a2dbecb83",
@@ -886,7 +937,12 @@
                             "name": "phase",
                             "displayName": "Connected on phase",
                             "type": "QString",
-                            "allowedValues": ["A", "B", "C", "All"],
+                            "allowedValues": [
+                                "A",
+                                "B",
+                                "C",
+                                "All"
+                            ],
                             "defaultValue": "All"
                         }
                     ],
@@ -926,8 +982,13 @@
                     "id": "f54c41f8-6e35-4503-a468-eb9a42a4f8fa",
                     "name": "smartHeatingRod",
                     "displayName": "Simulated smart heating rod",
-                    "createMethods": ["user"],
-                    "interfaces": [ "smartheatingrod", "smartmeterconsumer" ],
+                    "createMethods": [
+                        "user"
+                    ],
+                    "interfaces": [
+                        "smartheatingrod",
+                        "smartmeterconsumer"
+                    ],
                     "stateTypes": [
                         {
                             "id": "84db1333-9c18-4299-9a20-4f4f24cf14e5",

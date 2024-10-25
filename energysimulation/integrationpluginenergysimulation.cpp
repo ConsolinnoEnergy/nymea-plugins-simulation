@@ -455,9 +455,21 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
     // update surplus heatpumps
     foreach (Thing *heatPump, myThings().filterByThingClassId(surPlusHeatPumpThingClassId)) {   
-        heatPump->setStateValue(surPlusHeatPumpPowerStateTypeId, 12);
-        heatPump->setStateValue(surPlusHeatPumpSurPlusPowerStateTypeId, 23);
-        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 34);
+        heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300);
+        float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
+        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 1500);
+        float currentPower = heatPump->stateValue(surPlusHeatPumpCurrentPowerStateTypeId).toDouble();
+
+        float totalSurplusPower = surplusPower + currentPower;
+
+        if (surplusPower > 0 && totalSurplusPower > 800) {
+            float newPower = std::min(surplusPower + currentPower, 1800.0f);
+            heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, newPower);
+        } else {
+            heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 0);
+        }
+
+
         heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, 45);
     }
 
