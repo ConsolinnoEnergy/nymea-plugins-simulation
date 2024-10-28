@@ -455,23 +455,25 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
     // update surplus heatpumps
     foreach (Thing *heatPump, myThings().filterByThingClassId(surPlusHeatPumpThingClassId)) {   
-        heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300);
+        // heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300); // this should be set by ConEMS
         float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
-        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 1500);
+        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 1500); // this should be dependand on daytime
         float currentPower = heatPump->stateValue(surPlusHeatPumpCurrentPowerStateTypeId).toDouble();
 
-        float totalSurplusPower = surplusPower + currentPower;
-
-        if (surplusPower > 0 && totalSurplusPower > 800) {
-            float newPower = std::min(surplusPower + currentPower, 1800.0f);
-            heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, newPower);
-        } else {
-            heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, 0);
+        if (surplusPower > 0){
+            float totalSurplusPower = surplusPower + currentPower;
+            if (totalSurplusPower > 800) {
+                float increasedPower = std::min(currentPower + surplusPower, 1800.0f);
+                heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, increasedPower);
+            } 
         }
 
-
-        heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, 45);
+        float totalEnergyConsumed = heatPump->stateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId).toDouble();
+        totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;  // Assuming 5-second intervals
+        heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+
 
     // Update heating rods
     foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {
