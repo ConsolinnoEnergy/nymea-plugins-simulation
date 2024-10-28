@@ -788,7 +788,7 @@
                     "name": "surPlusHeatPump",
                     "displayName": "Simulated heat pump (PV Optimized)",
                     "createMethods": ["user"],
-                    "interfaces": [ "heatpump", "smartmeterconsumer" ],
+                    "interfaces": [ "heatpump", "pvsurplusheatpump", "smartmeterconsumer" ],
                     "settingsTypes": [],
                     "stateTypes": [
                          {
