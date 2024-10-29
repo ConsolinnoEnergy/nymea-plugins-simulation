@@ -166,9 +166,9 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
     }
 
     if (info->thing()->thingClassId() == smartHeatingRodThingClassId) {
-        if (info->action().actionTypeId() == smartHeatingRodPowerActionTypeId) {
-            uint power = info->action().paramValue(smartHeatingRodPowerActionPowerParamTypeId).toBool();
-            info->thing()->setStateValue(smartHeatingRodPowerStateTypeId, power);
+        if (info->action().actionTypeId() == smartHeatingRodExternalControlActionTypeId) {
+            bool externalControl = info->action().paramValue(smartHeatingRodExternalControlActionExternalControlParamTypeId).toBool();
+            info->thing()->setStateValue(smartHeatingRodExternalControlStateTypeId, externalControl);
         }
         if (info->action().actionTypeId() == smartHeatingRodHeatingPowerActionTypeId) {
             double heating_power = info->action().paramValue(smartHeatingRodHeatingPowerActionHeatingPowerParamTypeId).toDouble();
@@ -495,7 +495,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
     // Update heating rods
     foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {
-        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodPowerStateTypeId).toBool();
+        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodExternalControlStateTypeId).toBool();
         double currentPower = 0;
         if (heatingRodEnabled) {
             currentPower = heatingRod->stateValue(smartHeatingRodHeatingPowerStateTypeId).toDouble();
