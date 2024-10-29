@@ -427,6 +427,8 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(sgReadyHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+    // update simple heat pump
     foreach (Thing *heatPump, myThings().filterByThingClassId(simpleHeatPumpThingClassId)) {
         bool heatpumpEnabled = heatPump->stateValue(simpleHeatPumpPowerStateTypeId).toBool();
         QString phase = heatPump->setting(simpleHeatPumpSettingsPhaseParamTypeId).toString();
@@ -450,6 +452,45 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(simpleHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(simpleHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+    // update surplus heatpumps
+    foreach (Thing *heatPump, myThings().filterByThingClassId(surPlusHeatPumpThingClassId)) {   
+
+        QByteArray m_interval_surplus(
+            "0\0\0\0\0\0\1\1\0"  // 00:00–08:00: mostly off, except early morning hours
+            "\1\0\1\1\1\0\1\0"   // 08:00–16:00: mixed activity throughout the day
+            "\0\1\0\1\0\1\0\0",  // 16:00–24:00: periodic activity in the evening
+            24);
+
+        // heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300); // this should be set by ConEMS
+        float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
+        float currentPower = 0;
+
+        QTime temp;
+        int hour = temp.currentTime().hour();
+        if (hour >= 0 && hour < 24) {
+            if (m_interval_surplus[hour]) {  
+                currentPower = 1500 + (qrand() % 61 - 30); // power between 1470 and 1530
+            } else {
+                currentPower = hour; // stand by power
+            }
+        } else {
+            qCDebug(dcEnergySimulation()) << "surPlusHeatPump Schedule Interval out of Bounds";
+            currentPower = 0;
+        }
+
+        if (surplusPower > 800 && currentPower > 1000) {
+            // float totalSurplusPower = surplusPower + currentPower;
+            float increasedPower = std::min(surplusPower, 300.0f);
+            currentPower = currentPower + increasedPower;
+        }
+
+        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, currentPower); 
+        float totalEnergyConsumed = heatPump->stateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId).toDouble();
+        totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;  // Assuming 5-second intervals
+        heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+    }
+
 
 
     // Update heating rods
