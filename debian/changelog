@@ -1,8 +1,8 @@
-nymea-plugins-simulation (1.7.004) buster focal jammy; urgency=medium
+nymea-plugins-simulation (1.7.012) buster focal jammy; urgency=medium
 
-  * PV optimzed Heatpump
+  * Added surPlusHeatPump
 
-  -- Tim Fischer <t.fischer@consolinno.de>  Thu, 23 Okt 2024 11:04:14 +0100
+  -- Tim Fischer <t.fischer@consolinno.de>  Thu, 29 Okt 2024 11:04:14 +0100
 
 nymea-plugins-simulation (1.7.003) buster focal jammy; urgency=medium
 
