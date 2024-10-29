@@ -479,7 +479,7 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             currentPower = 0;
         }
 
-        if (surplusPower > 800 && currentPower > 0) {
+        if (surplusPower > 800 && currentPower > 1000) {
             // float totalSurplusPower = surplusPower + currentPower;
             float increasedPower = std::min(surplusPower, 300.0f);
             currentPower = currentPower + increasedPower;
