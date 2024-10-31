@@ -470,9 +470,10 @@ void IntegrationPluginEnergySimulation::updateSimulation()
 
         // heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300); // this should be set by ConEMS
         float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
+        float surplusPowerAbs = std::abs(surplusPower);
         float currentPower = 0;
 
-        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPower;
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPowerAbs;
 
         QTime temp;
         int hour = temp.currentTime().hour();
@@ -487,9 +488,8 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             currentPower = 0;
         }
 
-        if (surplusPower > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
-            // float totalSurplusPower = surplusPower + currentPower;
-            float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPower > 800
+        if (surplusPowerAbs > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
+            float increasedPower = std::min(surplusPowerAbs, 300.0f); // this is always 300 because the surplusPowerAbs > 800
             currentPower = currentPower + increasedPower;
         }
 
