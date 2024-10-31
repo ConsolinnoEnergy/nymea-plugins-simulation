@@ -163,7 +163,13 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         if (info->action().actionTypeId() == simpleHeatPumpPowerActionTypeId) {
             info->thing()->setStateValue(simpleHeatPumpPowerStateTypeId, info->action().paramValue(simpleHeatPumpPowerActionPowerParamTypeId).toBool());
         }
+    } else if (info->thing()->thingClassId() == surPlusHeatPumpThingClassId) {
+        if (info->action().actionTypeId() == surPlusHeatPumpActualPvSurplusActionTypeId) {
+            double surplus = info->action().paramValue(surPlusHeatPumpActualPvSurplusActionActualPvSurplusParamTypeId).toDouble();
+            info->thing()->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, surplus);
+        }
     }
+
 
     if (info->thing()->thingClassId() == smartHeatingRodThingClassId) {
         if (info->action().actionTypeId() == smartHeatingRodExternalControlActionTypeId) {
@@ -459,12 +465,14 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         QByteArray m_interval_surplus(
             "0\0\0\0\0\0\1\1\0"  // 00:00–08:00: mostly off, except early morning hours
             "\1\0\1\1\1\0\1\0"   // 08:00–16:00: mixed activity throughout the day
-            "\0\1\0\1\0\1\0\0",  // 16:00–24:00: periodic activity in the evening
+            "\0\1\0\1\0\1\1\1",  // 16:00–24:00: periodic activity in the evening
             24);
 
         // heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300); // this should be set by ConEMS
         float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
         float currentPower = 0;
+
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPower;
 
         QTime temp;
         int hour = temp.currentTime().hour();
@@ -472,16 +480,16 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             if (m_interval_surplus[hour]) {  
                 currentPower = 1500 + (qrand() % 61 - 30); // power between 1470 and 1530
             } else {
-                currentPower = hour; // stand by power
+                currentPower = 123; // stand by power
             }
         } else {
             qCDebug(dcEnergySimulation()) << "surPlusHeatPump Schedule Interval out of Bounds";
             currentPower = 0;
         }
 
-        if (surplusPower > 800 && currentPower > 1000) {
+        if (surplusPower > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
             // float totalSurplusPower = surplusPower + currentPower;
-            float increasedPower = std::min(surplusPower, 300.0f);
+            float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPower > 800
             currentPower = currentPower + increasedPower;
         }
 
