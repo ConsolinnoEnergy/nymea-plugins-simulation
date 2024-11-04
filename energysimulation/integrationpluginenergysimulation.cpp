@@ -498,8 +498,23 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             currentPower = 0;
         }
 
-        if (surplusPower > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
-            float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPowerAbs > 800
+        if (surplusPower > 800 ) {
+            surplusAboveThresholdCounter++;
+            surplusBelowThresholdCounter = 0;
+        } else {
+            surplusBelowThresholdCounter++;
+            surplusAboveThresholdCounter = 0;
+        }
+
+        if (surplusAboveThresholdCounter >= 3) {
+            surplusMode = true;
+        } else if (surplusBelowThresholdCounter >= 3) {
+            surplusMode = false;  
+        }
+
+        if (surplusMode && currentPower > 1000) { 
+            // float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPowerAbs > 800
+            float increasedPower = 300;
             currentPower = currentPower + increasedPower;
         }
 
