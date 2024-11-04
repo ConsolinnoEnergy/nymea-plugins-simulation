@@ -468,12 +468,22 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             "\0\1\0\1\0\1\1\1",  // 16:00–24:00: periodic activity in the evening
             24);
 
-        // heatPump->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, 300); // this should be set by ConEMS
-        float surplusPower = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
-        float surplusPowerAbs = std::abs(surplusPower);
+        float surplusPower = 0;
+        float consumptionPower = 0;
         float currentPower = 0;
 
-        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPowerAbs;
+        double stateValue = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
+
+        if (stateValue < 0) {
+            // Negative value indicates energy feed-in (Energieeinspeisung)
+            surplusPower = -1 * stateValue;
+        } else {
+            // Positive value indicates energy consumption (Energiebezug)
+            consumptionPower = stateValue;
+        }
+
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPower;
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << consumptionPower;
 
         QTime temp;
         int hour = temp.currentTime().hour();
@@ -481,15 +491,15 @@ void IntegrationPluginEnergySimulation::updateSimulation()
             if (m_interval_surplus[hour]) {  
                 currentPower = 1500 + (qrand() % 61 - 30); // power between 1470 and 1530
             } else {
-                currentPower = 123; // stand by power
+                currentPower = 20 + (qrand() % 11 - 5);
             }
         } else {
             qCDebug(dcEnergySimulation()) << "surPlusHeatPump Schedule Interval out of Bounds";
             currentPower = 0;
         }
 
-        if (surplusPowerAbs > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
-            float increasedPower = std::min(surplusPowerAbs, 300.0f); // this is always 300 because the surplusPowerAbs > 800
+        if (surplusPower > 800 && currentPower > 1000) { // hysteresys! What if its close about 800?
+            float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPowerAbs > 800
             currentPower = currentPower + increasedPower;
         }
 
