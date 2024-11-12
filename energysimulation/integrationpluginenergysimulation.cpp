@@ -544,6 +544,9 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         qCDebug(dcEnergySimulation()) << "* Heating rod" << heatingRod->name() << "consumes" << currentPower << "W" << "Energy consumed" << totalEnergyConsumed << "kWh";
         heatingRod->setStateValue(smartHeatingRodCurrentPowerStateTypeId, currentPower);
         heatingRod->setStateValue(smartHeatingRodTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+
+        heatingRod->setStateValue(smartHeatingRodTemperatureSensor0StateTypeId, 30);
+
     }
 
 
