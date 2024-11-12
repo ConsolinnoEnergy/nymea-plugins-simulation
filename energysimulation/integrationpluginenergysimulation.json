@@ -930,6 +930,19 @@
                             "type": "double",
                             "unit": "KiloWattHour",
                             "defaultValue": 0
+                        },
+                        {
+                            "id": "d12e6965-df9f-4b2f-bc47-43c3486014f2",
+                            "name": "temperatureSensor0",
+                            "displayName": "Temperature sensor 0",
+                            "displayNameEvent": "Temperature sensor 0 changed",
+                            "type": "double",
+                            "unit": "DegreeCelsius",
+                            "minValue": 0,
+                            "maxValue": 100,
+                            "defaultValue": 0.0,
+                            "writable": false,
+                            "cached": false
                         }
                     ]
                 }
