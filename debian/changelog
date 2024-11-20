@@ -1,4 +1,4 @@
-nymea-plugins-simulation (1.7.004) buster focal jammy; urgency=medium
+nymea-plugins-simulation (1.7.004-1) buster focal jammy; urgency=medium
 
   * Added surPlusHeatPump
   * execute action forsurPlusHeatPump
