@@ -1,6 +1,16 @@
+nymea-plugins-simulation (1.7.004-1) buster focal jammy; urgency=medium
+
+  * Added surPlusHeatPump
+  * execute action forsurPlusHeatPump
+  * converting into surplus absolut
+  * adding temperature sensor to heating rod
+
+  -- Tim Fischer <t.fischer@consolinno.de>  Thu, 29 Okt 2024 11:04:14 +0100
+
 nymea-plugins-simulation (1.7.003) buster focal jammy; urgency=medium
 
   * Added dynamic pricing simulation
+  * Adopt changes of smartheatingrod interface
 
  -- Leonhard Heizinger <l.heizinger@consolinno.de>  Fri, 23 Aug 2024 10:44:52 +0100
 

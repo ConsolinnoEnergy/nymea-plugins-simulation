@@ -62,6 +62,11 @@ private:
     PluginTimer *m_timer = nullptr;
     PluginTimer *m_totalsTimer = nullptr;
     QByteArray m_interval;
+
+    int surplusAboveThresholdCounter = 0;
+    int surplusBelowThresholdCounter = 0;
+    bool surplusMode = false;
+
 };
 
 #endif // INTEGRATIONPLUGINENERGYSIMULATION_H
