@@ -49,3 +49,5 @@ vendor
 *.swp
 
 .crossbuilder
+
+.vscode

@@ -163,12 +163,18 @@ void IntegrationPluginEnergySimulation::executeAction(ThingActionInfo *info)
         if (info->action().actionTypeId() == simpleHeatPumpPowerActionTypeId) {
             info->thing()->setStateValue(simpleHeatPumpPowerStateTypeId, info->action().paramValue(simpleHeatPumpPowerActionPowerParamTypeId).toBool());
         }
+    } else if (info->thing()->thingClassId() == surPlusHeatPumpThingClassId) {
+        if (info->action().actionTypeId() == surPlusHeatPumpActualPvSurplusActionTypeId) {
+            double surplus = info->action().paramValue(surPlusHeatPumpActualPvSurplusActionActualPvSurplusParamTypeId).toDouble();
+            info->thing()->setStateValue(surPlusHeatPumpActualPvSurplusStateTypeId, surplus);
+        }
     }
 
+
     if (info->thing()->thingClassId() == smartHeatingRodThingClassId) {
-        if (info->action().actionTypeId() == smartHeatingRodPowerActionTypeId) {
-            uint power = info->action().paramValue(smartHeatingRodPowerActionPowerParamTypeId).toBool();
-            info->thing()->setStateValue(smartHeatingRodPowerStateTypeId, power);
+        if (info->action().actionTypeId() == smartHeatingRodExternalControlActionTypeId) {
+            bool externalControl = info->action().paramValue(smartHeatingRodExternalControlActionExternalControlParamTypeId).toBool();
+            info->thing()->setStateValue(smartHeatingRodExternalControlStateTypeId, externalControl);
         }
         if (info->action().actionTypeId() == smartHeatingRodHeatingPowerActionTypeId) {
             double heating_power = info->action().paramValue(smartHeatingRodHeatingPowerActionHeatingPowerParamTypeId).toDouble();
@@ -427,6 +433,8 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(sgReadyHeatPumpCurrentPowerStateTypeId, currentPower);
         heatPump->setStateValue(sgReadyHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
+
+    // update simple heat pump
     foreach (Thing *heatPump, myThings().filterByThingClassId(simpleHeatPumpThingClassId)) {
         bool heatpumpEnabled = heatPump->stateValue(simpleHeatPumpPowerStateTypeId).toBool();
         QString phase = heatPump->setting(simpleHeatPumpSettingsPhaseParamTypeId).toString();
@@ -451,10 +459,76 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         heatPump->setStateValue(simpleHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
     }
 
+    // update surplus heatpumps
+    foreach (Thing *heatPump, myThings().filterByThingClassId(surPlusHeatPumpThingClassId)) {   
+
+        QByteArray m_interval_surplus(
+            "0\0\0\0\0\0\1\1\0"  // 00:00–08:00: mostly off, except early morning hours
+            "\1\0\1\1\1\0\1\0"   // 08:00–16:00: mixed activity throughout the day
+            "\0\1\0\1\0\1\1\1",  // 16:00–24:00: periodic activity in the evening
+            24);
+
+        float surplusPower = 0;
+        float consumptionPower = 0;
+        float currentPower = 0;
+
+        double stateValue = heatPump->stateValue(surPlusHeatPumpActualPvSurplusStateTypeId).toDouble();
+
+        if (stateValue < 0) {
+            // Negative value indicates energy feed-in (Energieeinspeisung)
+            surplusPower = -1 * stateValue;
+        } else {
+            // Positive value indicates energy consumption (Energiebezug)
+            consumptionPower = stateValue;
+        }
+
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << surplusPower;
+        qCDebug(dcEnergySimulation()) << "Surplus Power: " << consumptionPower;
+
+        QTime temp;
+        int hour = temp.currentTime().hour();
+        if (hour >= 0 && hour < 24) {
+            if (m_interval_surplus[hour]) {  
+                currentPower = 1500 + (qrand() % 61 - 30); // power between 1470 and 1530
+            } else {
+                currentPower = 20 + (qrand() % 11 - 5);
+            }
+        } else {
+            qCDebug(dcEnergySimulation()) << "surPlusHeatPump Schedule Interval out of Bounds";
+            currentPower = 0;
+        }
+
+        if (surplusPower > 800 ) {
+            surplusAboveThresholdCounter++;
+            surplusBelowThresholdCounter = 0;
+        } else {
+            surplusBelowThresholdCounter++;
+            surplusAboveThresholdCounter = 0;
+        }
+
+        if (surplusAboveThresholdCounter >= 3) {
+            surplusMode = true;
+        } else if (surplusBelowThresholdCounter >= 3) {
+            surplusMode = false;  
+        }
+
+        if (surplusMode && currentPower > 1000) { 
+            // float increasedPower = std::min(surplusPower, 300.0f); // this is always 300 because the surplusPowerAbs > 800
+            float increasedPower = 300;
+            currentPower = currentPower + increasedPower;
+        }
+
+        heatPump->setStateValue(surPlusHeatPumpCurrentPowerStateTypeId, currentPower); 
+        float totalEnergyConsumed = heatPump->stateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId).toDouble();
+        totalEnergyConsumed += (currentPower / 1000) / 60 / 60 * 5;  // Assuming 5-second intervals
+        heatPump->setStateValue(surPlusHeatPumpTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+    }
+
+
 
     // Update heating rods
     foreach (Thing *heatingRod, myThings().filterByThingClassId(smartHeatingRodThingClassId)) {
-        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodPowerStateTypeId).toBool();
+        bool heatingRodEnabled = heatingRod->stateValue(smartHeatingRodExternalControlStateTypeId).toBool();
         double currentPower = 0;
         if (heatingRodEnabled) {
             currentPower = heatingRod->stateValue(smartHeatingRodHeatingPowerStateTypeId).toDouble();
@@ -470,6 +544,9 @@ void IntegrationPluginEnergySimulation::updateSimulation()
         qCDebug(dcEnergySimulation()) << "* Heating rod" << heatingRod->name() << "consumes" << currentPower << "W" << "Energy consumed" << totalEnergyConsumed << "kWh";
         heatingRod->setStateValue(smartHeatingRodCurrentPowerStateTypeId, currentPower);
         heatingRod->setStateValue(smartHeatingRodTotalEnergyConsumedStateTypeId, totalEnergyConsumed);
+
+        heatingRod->setStateValue(smartHeatingRodTemperatureSensor0StateTypeId, 30);
+
     }
 
 
